@@ -5,6 +5,7 @@ import java.util.List;
 
 import hibernate.projects.Entity.Card;
 import hibernate.projects.Entity.EquipmentCard;
+import hibernate.projects.Entity.Game;
 import hibernate.projects.Entity.UseCard;
 import hibernate.projects.Enum.Suit;
 import hibernate.projects.Enum.TypeEquipment;
@@ -15,31 +16,34 @@ import jakarta.persistence.PersistenceException;
 
 public class CardDAO {
 
-    public static List<Card> list(EntityManager em) {
+    public static List<Card> list(EntityManager em, Game game) {
 
-        List<Card> cards = em.createQuery("FROM Card", Card.class).getResultList();
-
-        return cards;
-    }
-
-    public static List<Card> shuffle(EntityManager em) {
-
-        List<Card> cards = em.createQuery("SELECT c FROM Card c ORDER BY function('RAND')", Card.class).getResultList();
+        List<Card> cards = em.createQuery("FROM Card c WHERE :game MEMBER OF c.gamesPlaying", Card.class)
+                .setParameter("game", game)
+                .getResultList();
 
         return cards;
     }
 
-    public static void checkCards(EntityManager em) {
+    public static List<Card> shuffle(EntityManager em, Game game) {
+
+        List<Card> cards = em
+                .createQuery("SELECT c FROM Card c WHERE :game MEMBER OF c.gamesPlaying ORDER BY function('RAND')",
+                        Card.class)
+                .setParameter("game", game)
+                .getResultList();
+
+        return cards;
+    }
+
+    public static void checkCards(EntityManager em, Game game) {
         EntityTransaction transaction = null;
         try {
             transaction = em.getTransaction();
             transaction.begin();
 
             final int NUMBER_CARDS = 80;
-
-            Long total = em.createQuery("SELECT COUNT(c) FROM Card c", Long.class).getSingleResult();
-
-            Long existing = total != null ? total : 0;
+            Long existing = 0L;
 
             Suit[] suits = Suit.values();
             int suitIndex = 0;
@@ -53,6 +57,7 @@ public class CardDAO {
                 while (created < 43 && existing < NUMBER_CARDS) {
                     TypeUse type = uses.get(index % useCount);
                     UseCard useCard = new UseCard();
+                    useCard.gamesPlaying.add(game);
                     useCard.name = type.name();
                     useCard.description = type.description;
                     useCard.type = type;
@@ -70,6 +75,7 @@ public class CardDAO {
                     for (int i = 0; i < 4 && existing < NUMBER_CARDS; i++) {
                         for (TypeEquipment type : TypeEquipment.values()) {
                             EquipmentCard equipmentCard = new EquipmentCard();
+                            equipmentCard.gamesPlaying.add(game);
                             equipmentCard.name = type.name();
                             equipmentCard.description = type.description;
                             equipmentCard.type = type;
