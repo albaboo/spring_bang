@@ -2,7 +2,6 @@ package hibernate.projects.Controller;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -97,7 +96,7 @@ public class GameDAO {
 
         Game game = new Game();
         game.players = new HashSet<>();
-        
+
         EntityTransaction transaction = em.getTransaction();
 
         try {
