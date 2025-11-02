@@ -39,9 +39,6 @@ public class RoleDAO {
             if (transaction != null && transaction.isActive())
                 transaction.rollback();
             System.err.println("\u001B[31mError comprobando roles: " + e.getMessage() + "\u001B[0m");
-        } finally {
-            if (transaction != null && transaction.isActive())
-                transaction.rollback();
         }
     }
 }

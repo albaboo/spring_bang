@@ -15,6 +15,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "game")
@@ -30,6 +32,7 @@ public class Game {
     @Column(name = "turn", nullable = false, columnDefinition = "INT DEFAULT 0")
     public int turn = 0;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "start_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     public Date startDate = new Date();
 

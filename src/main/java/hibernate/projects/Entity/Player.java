@@ -48,14 +48,14 @@ public class Player {
     @JoinColumn(name = "role_id")
     public Role role;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "weapon_id", referencedColumnName = "id")
     public WeaponCard weapon;
 
-    @OneToMany(mappedBy = "equippedPlayer", cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = EquipmentCard.class)
+    @OneToMany(mappedBy = "equippedPlayer", cascade = CascadeType.ALL)
     public Deque<EquipmentCard> equipments = new ArrayDeque<>();
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
     public Deque<Card> hand = new ArrayDeque<>();
 
     @ManyToMany

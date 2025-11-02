@@ -46,7 +46,6 @@ public class PlayerDAO {
                 if (name.length() > 0) {
                     Player newPlayer = new Player();
                     newPlayer.name = name;
-                    transaction = em.getTransaction();
                     transaction.begin();
                     em.persist(newPlayer);
                     transaction.commit();

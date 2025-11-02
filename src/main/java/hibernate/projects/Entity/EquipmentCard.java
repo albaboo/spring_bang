@@ -14,10 +14,10 @@ import jakarta.persistence.Table;
 public class EquipmentCard extends Card {
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type")
+    @Column(name = "type", nullable = false)
     public TypeEquipment type;
 
-    @Column(name = "distance_modifier")
+    @Column(name = "distance_modifier", nullable = false)
     public int distanceModifier;
 
     /** Relaciones */

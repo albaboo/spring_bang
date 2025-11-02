@@ -26,6 +26,9 @@ public class GameDAO {
 
         Game game = em.find(Game.class, idGame);
 
+        if (game == null)
+            return new HashSet<>();
+
         return game.players != null ? game.players : new HashSet<>();
     }
 
@@ -94,12 +97,10 @@ public class GameDAO {
 
         Game game = new Game();
         game.players = new HashSet<>();
-        game.startDate = new Date();
-
-        EntityTransaction transaction = null;
+        
+        EntityTransaction transaction = em.getTransaction();
 
         try {
-            transaction = em.getTransaction();
             transaction.begin();
 
             em.persist(game);
@@ -115,7 +116,7 @@ public class GameDAO {
                     System.out.println("\t3 - Continuar");
                 System.out.println("=============================================================");
                 System.out.print("\nElige una número: ");
-                
+
                 int option = in.nextInt();
                 switch (option) {
                     case 1:
@@ -143,6 +144,9 @@ public class GameDAO {
 
             Deque<Card> cards = new ArrayDeque<>(CardDAO.shuffle(em));
 
+            transaction = em.getTransaction();
+            transaction.begin();
+
             for (Player player : game.players) {
                 player.role = roles.get(roleIndex % roles.size());
                 WeaponCard colt = new WeaponCard();
@@ -157,18 +161,11 @@ public class GameDAO {
 
                 }
 
-                transaction = em.getTransaction();
-                transaction.begin();
-
                 em.persist(colt);
                 em.merge(player);
-                transaction.commit();
                 roleIndex++;
                 suitIndex++;
             }
-
-            transaction = em.getTransaction();
-            transaction.begin();
 
             game.playingCards = cards;
             em.merge(game);

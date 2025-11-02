@@ -56,9 +56,9 @@ public class CardDAO {
                     useCard.name = type.name();
                     useCard.description = type.description;
                     useCard.type = type;
+                    useCard.suit = suits[suitIndex % suits.length];
                     em.persist(useCard);
 
-                    useCard.suit = suits[suitIndex % suits.length];
                     created++;
                     existing++;
                     suitIndex++;
