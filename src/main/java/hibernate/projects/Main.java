@@ -2,7 +2,6 @@ package hibernate.projects;
 
 import java.util.Scanner;
 
-import hibernate.projects.Controller.CardDAO;
 import hibernate.projects.Controller.PlayerDAO;
 import hibernate.projects.Controller.RoleDAO;
 import jakarta.persistence.EntityManager;
@@ -21,7 +20,7 @@ public class Main {
                 emFactory = Persistence.createEntityManagerFactory("projectBang");
 
         } catch (PersistenceException e) {
-            System.err.println("Error al construir l'EntityManagerFactory: " + e.getMessage());
+            System.err.println("Error al construir el EntityManagerFactory: " + e.getMessage());
             throw new ExceptionInInitializerError(e);
         }
         return emFactory;
@@ -36,7 +35,6 @@ public class Main {
             transaction = em.getTransaction();
 
             RoleDAO.checkRoles(em);
-            CardDAO.checkCards(em);
 
             boolean playing = true;
             while (playing) {
@@ -76,13 +74,13 @@ public class Main {
 
             }
 
-            System.out.println("Closing...");
+            System.out.println("Cerrando programa...");
 
         } catch (Exception e) {
             if (transaction != null && transaction.isActive())
                 transaction.rollback();
 
-            System.err.println("\n\u001B[31mError durant l'execució del programa: " + e.getMessage() + "\u001B[0m");
+            System.err.println("\n\u001B[31mError durante la ejecución del programa: " + e.getMessage() + "\u001B[0m");
         } finally {
             in.close();
 

@@ -48,14 +48,14 @@ public class Player {
     @JoinColumn(name = "role_id")
     public Role role;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "weapon_id", referencedColumnName = "id")
     public WeaponCard weapon;
 
-    @OneToMany(mappedBy = "equippedPlayer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "equippedPlayer", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<EquipmentCard> equipments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Card> hand = new ArrayList<>();
 
     @ManyToMany

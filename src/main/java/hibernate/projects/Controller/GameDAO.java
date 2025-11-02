@@ -99,15 +99,16 @@ public class GameDAO {
 
         try {
             transaction.begin();
-
             em.persist(game);
             transaction.commit();
+
+            CardDAO.checkCards(em, game);
 
             boolean building = true;
             while (building) {
                 System.out.println("\n==================== MENÚ DE PREPARACIÓN ====================");
                 System.out.println("\t1 - Añadir jugador a la partida");
-                if (game.players.size() > 0)
+                if (!game.players.isEmpty())
                     System.out.println("\t2 - Quitar jugador de la partida");
                 if (game.players.size() > 1)
                     System.out.println("\t3 - Continuar");
@@ -121,7 +122,8 @@ public class GameDAO {
                         break;
 
                     case 2:
-                        game = removePlayer(in, em, game);
+                        if (!game.players.isEmpty())
+                            game = removePlayer(in, em, game);
                         break;
 
                     case 3:
@@ -139,10 +141,20 @@ public class GameDAO {
             Suit[] suits = Suit.values();
             int suitIndex = 0;
 
-            List<Card> cards = CardDAO.shuffle(em);
+            List<Card> cards = CardDAO.shuffle(em, game);
 
-            transaction = em.getTransaction();
             transaction.begin();
+
+            game.players.forEach(p -> {
+                if (!p.hand.isEmpty())
+                    p.hand.clear();
+                if (!p.equipments.isEmpty())
+                    p.equipments.clear();
+                if (p.weapon != null)
+                    p.weapon = null;
+
+                em.merge(p);
+            });
 
             for (Player player : game.players) {
                 player.role = roles.get(roleIndex % roles.size());
@@ -153,11 +165,13 @@ public class GameDAO {
                 colt.suit = suits[suitIndex % suits.length];
                 colt.player = player;
                 player.weapon = colt;
-                for (int i = 0; i < 4; i++) {
+                em.persist(colt);
+
+                for (int i = 0; i < 4 && !cards.isEmpty(); i++) {
                     Card card = cards.remove(0);
                     card.player = player;
                     player.hand.add(card);
-                    em.persist(card);
+                    em.merge(card);
 
                 }
 
@@ -167,14 +181,11 @@ public class GameDAO {
 
                 }
 
-                em.persist(colt);
                 em.merge(player);
                 roleIndex++;
                 suitIndex++;
             }
-
-            game.playingCards = new ArrayList<>(cards);
-            em.merge(game);
+            
             transaction.commit();
 
         } catch (PersistenceException e) {

@@ -14,6 +14,6 @@ public class WeaponCard extends Card {
 
     /** Relacions */
 
-    @OneToOne(mappedBy = "weapon")
+    @OneToOne(mappedBy = "weapon", orphanRemoval = true)
     public Player equippedPlayer;
 }
