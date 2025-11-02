@@ -1,10 +1,8 @@
 package hibernate.projects.Controller;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
 import hibernate.projects.Entity.Card;
 import hibernate.projects.Entity.Game;
@@ -19,18 +17,18 @@ import jakarta.persistence.PersistenceException;
 
 public class GameDAO {
 
-    public static Set<Player> listPlayers(EntityManager em, int idGame) {
+    public static List<Player> listPlayers(EntityManager em, int idGame) {
 
         Game game = em.find(Game.class, idGame);
 
         if (game == null)
-            return new HashSet<>();
+            return new ArrayList<>();
 
-        return game.players != null ? game.players : new HashSet<>();
+        return game.players != null ? game.players : new ArrayList<>();
     }
 
     public static void showPlayers(EntityManager em, int idGame) {
-        Set<Player> players = listPlayers(em, idGame);
+        List<Player> players = listPlayers(em, idGame);
 
         System.out.println("\n==================== LISTA DE JUGADORES ====================");
         for (Player player : players) {
@@ -93,7 +91,6 @@ public class GameDAO {
     public static Game startGame(EntityManager em, Scanner in) {
 
         Game game = new Game();
-        game.players = new HashSet<>();
 
         EntityTransaction transaction = em.getTransaction();
 
@@ -185,7 +182,7 @@ public class GameDAO {
                 roleIndex++;
                 suitIndex++;
             }
-            
+
             transaction.commit();
 
         } catch (PersistenceException e) {
@@ -296,7 +293,61 @@ public class GameDAO {
         return game;
     }
 
-    public static boolean checkVictory(int idGame) {
+    public static boolean checkVictory(EntityManager em, int idGame) {
+
+        Game game = em.find(Game.class, idGame);
+        if (game == null)
+            return false;
+
+        int sheriff = 0, malfactor = 0, renegade = 0, assistant = 0;
+
+        for (Player player : game.players) {
+
+            if (player.currentLife > 0) {
+                switch (player.role.type) {
+                    case SHERIFF:
+                        sheriff++;
+                        break;
+                    case MALFACTOR:
+                        malfactor++;
+                        break;
+                    case RENEGADE:
+                        renegade++;
+                        break;
+                    case ASSISTANT:
+                        assistant++;
+                        break;
+                }
+            }
+        }
+
+        TypeRole winner = (sheriff == 0 && malfactor > 0) ? TypeRole.MALFACTOR
+                : (malfactor == 0 && renegade == 0) ? TypeRole.SHERIFF
+                        : (sheriff == 0 && assistant == 0 && malfactor == 0 && renegade > 0) ? TypeRole.RENEGADE
+                                : null;
+
+        if (winner != null) {
+
+            EntityTransaction transaction = em.getTransaction();
+            try {
+                transaction.begin();
+                if (winner == TypeRole.SHERIFF)
+                    game.status = "WIN " + winner + " & " + TypeRole.ASSISTANT;
+                else
+                    game.status = "WIN " + winner;
+
+                System.out.println(game.status);
+                game.active = false;
+                em.merge(game);
+                transaction.commit();
+                return true;
+            } catch (Exception e) {
+                if (transaction.isActive())
+                    transaction.rollback();
+                e.printStackTrace();
+                System.err.println("\u001B[31mError al registrar la victoria: " + e.getMessage() + "\u001B[0m");
+            }
+        }
 
         return false;
     }

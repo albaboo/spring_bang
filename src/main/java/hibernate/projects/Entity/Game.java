@@ -2,9 +2,7 @@ package hibernate.projects.Entity;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,7 +40,7 @@ public class Game {
     /** Relaciones */
 
     @ManyToMany(mappedBy = "games")
-    public Set<Player> players = new HashSet<>();
+    public List<Player> players = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "game_playing_cards", joinColumns = @JoinColumn(name = "game_id"), inverseJoinColumns = @JoinColumn(name = "card_id"))

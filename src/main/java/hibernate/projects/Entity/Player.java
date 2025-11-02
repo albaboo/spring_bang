@@ -1,9 +1,7 @@
 package hibernate.projects.Entity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -60,10 +58,10 @@ public class Player {
 
     @ManyToMany
     @JoinTable(name = "player_game", joinColumns = @JoinColumn(name = "player_id"), inverseJoinColumns = @JoinColumn(name = "game_id"))
-    public Set<Game> games = new HashSet<>();
+    public List<Game> games = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "distance_players", joinColumns = @JoinColumn(name = "player1_id"), inverseJoinColumns = @JoinColumn(name = "player2_id"))
-    public Set<Player> distance = new HashSet<>();
+    public List<Player> distance = new ArrayList<>();
 
 }

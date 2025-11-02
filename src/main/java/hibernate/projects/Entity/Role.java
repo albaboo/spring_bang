@@ -1,7 +1,7 @@
 package hibernate.projects.Entity;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import hibernate.projects.Enum.TypeRole;
 import jakarta.persistence.Column;
@@ -32,6 +32,6 @@ public class Role {
     /** Relaciones */
 
     @OneToMany(mappedBy = "role")
-    public Set<Player> players = new HashSet<Player>();
+    public List<Player> players = new ArrayList<Player>();
 
 }
