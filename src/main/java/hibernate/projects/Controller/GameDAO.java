@@ -160,6 +160,12 @@ public class GameDAO {
 
                 }
 
+                for (Player player2 : game.players) {
+                    if (player2 != player)
+                        player.distance.add(player2);
+                    
+                }
+
                 em.persist(colt);
                 em.merge(player);
                 roleIndex++;
