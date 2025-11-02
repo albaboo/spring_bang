@@ -189,7 +189,7 @@ public class GameDAO {
         boolean selecting = true;
 
         while (selecting) {
-            showPlayers(em, game.id);
+            PlayerDAO.showPlayers(em);
             System.out.println("\n\t0 - Volver atras");
             System.out.print("\nSelecciona un número de jugador: ");
             int option = in.nextInt();
