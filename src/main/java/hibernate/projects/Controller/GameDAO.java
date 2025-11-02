@@ -172,7 +172,7 @@ public class GameDAO {
                 suitIndex++;
             }
 
-            game.playingCards = cards;
+            game.playingCards = new ArrayList<>(cards);
             em.merge(game);
             transaction.commit();
 
@@ -309,8 +309,8 @@ public class GameDAO {
 
             transaction.begin();
 
-            Card card = game.playingCards.pollFirst();
-            game.discardedCards.addFirst(card);
+            Card card = game.playingCards.remove(0);
+            game.discardedCards.add(0, card);
 
             em.merge(game);
             transaction.commit();

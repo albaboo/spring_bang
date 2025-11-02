@@ -1,5 +1,6 @@
 package hibernate.projects.Controller;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -73,7 +74,7 @@ public class PlayerDAO {
                 return null;
             }
 
-            return player.hand;
+            return new ArrayDeque<>(player.hand);
         } catch (PersistenceException e) {
             System.err.println(
                     "\n\u001B[31mError durant la recuperació de la mà del jugador: " + e.getMessage() + "\u001B[0m");

@@ -1,7 +1,7 @@
 package hibernate.projects.Entity;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
+import java.util.List;
 
 import hibernate.projects.Enum.Suit;
 import jakarta.persistence.Column;
@@ -44,10 +44,10 @@ public abstract class Card {
     public Player player;
 
     @ManyToMany(mappedBy = "playingCards")
-    public Deque<Game> gamesPlaying = new ArrayDeque<>();
+    public List<Game> gamesPlaying = new ArrayList<>();
 
     @ManyToMany(mappedBy = "discardedCards")
-    public Deque<Game> gamesDiscarded = new ArrayDeque<>();
+    public List<Game> gamesDiscarded = new ArrayList<>();
 
     @Override
     public String toString() {
