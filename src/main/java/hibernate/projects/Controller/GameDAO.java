@@ -1,8 +1,6 @@
 package hibernate.projects.Controller;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -141,7 +139,7 @@ public class GameDAO {
             Suit[] suits = Suit.values();
             int suitIndex = 0;
 
-            Deque<Card> cards = new ArrayDeque<>(CardDAO.shuffle(em));
+            List<Card> cards = CardDAO.shuffle(em);
 
             transaction = em.getTransaction();
             transaction.begin();
@@ -156,7 +154,10 @@ public class GameDAO {
                 colt.player = player;
                 player.weapon = colt;
                 for (int i = 0; i < 4; i++) {
-                    player.hand.add(cards.pollFirst());
+                    Card card = cards.remove(0);
+                    card.player = player;
+                    player.hand.add(card);
+                    em.persist(card);
 
                 }
 
