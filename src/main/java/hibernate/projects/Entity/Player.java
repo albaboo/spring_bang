@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -50,10 +51,10 @@ public class Player {
     @JoinColumn(name = "weapon_id", referencedColumnName = "id")
     public WeaponCard weapon;
 
-    @OneToMany(mappedBy = "equippedPlayer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "equippedPlayer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public List<EquipmentCard> equipments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public List<Card> hand = new ArrayList<>();
 
     @ManyToMany
