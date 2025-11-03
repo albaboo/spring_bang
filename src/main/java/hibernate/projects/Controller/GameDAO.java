@@ -41,7 +41,7 @@ public class GameDAO {
 
     }
 
-    public static void showGame(EntityManager em, int idGame) {
+    public static void show(EntityManager em, int idGame) {
 
         Game game = em.find(Game.class, idGame);
         if (game == null) {
@@ -195,6 +195,9 @@ public class GameDAO {
                 suitIndex++;
             }
 
+            game.playingCards = cards;
+            
+            em.merge(game);
             transaction.commit();
 
         } catch (PersistenceException e) {
@@ -435,6 +438,7 @@ public class GameDAO {
                 System.out.println("\t2 - Equipar equipamiento");
                 System.out.println("\t3 - Usar " + TypeUse.BANG.name() + " -> " + TypeUse.BANG.description);
                 System.out.println("\t4 - Usar " + TypeUse.BEER.name() + " -> " + TypeUse.BEER.description);
+                System.out.println("\t5 - Mostrar estado de la partida");
                 System.out.println("====================================");
                 System.out.println("\n\t0 - Pasar turno");
                 System.out.print("\nElige una número: ");
@@ -477,6 +481,9 @@ public class GameDAO {
                             PlayerDAO.useBeer(em, currentPlayer.id, idGame);
                         else
                             System.err.println("\n\u001B[31mNo hay cartas de este tipo de uso disponibles\u001B[0m");
+                        break;
+                    case 5:
+                        GameDAO.show(em, idGame);
                         break;
 
                 }
