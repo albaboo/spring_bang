@@ -46,7 +46,7 @@ public class Player {
     @JoinColumn(name = "role_id")
     public Role role;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne
     @JoinColumn(name = "weapon_id", referencedColumnName = "id")
     public WeaponCard weapon;
 
