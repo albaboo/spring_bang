@@ -51,10 +51,10 @@ public class Player {
     @JoinColumn(name = "weapon_id", referencedColumnName = "id")
     public WeaponCard weapon;
 
-    @OneToMany(mappedBy = "equippedPlayer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "equippedPlayer", cascade = CascadeType.ALL)
     public List<EquipmentCard> equipments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
     public List<Card> hand = new ArrayList<>();
 
     @ManyToMany
