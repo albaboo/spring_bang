@@ -41,6 +41,7 @@ Desde la consola puedes añadir jugadores y jugar.
 - **Lenguaje:** Java  
 - **Persistencia:** Hibernate (JPA)  
 - **Base de datos:** MySQL
+- **Gestión de dependencias y compilación:** Maven
 
 ## Project structure
 
@@ -58,6 +59,5 @@ hibernate_bang/
 >
 > pom.xml   
 > README.md  
-
-- **Gestión de dependencias y compilación:** Maven  
+  
 
