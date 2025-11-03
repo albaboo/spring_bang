@@ -83,15 +83,19 @@ public class PlayerDAO {
 
         while (selecting) {
             PlayerDAO.showPlayers(em);
-            System.out.print("\nSelecciona un número de jugador: ");
+            System.out.print("\t0 - Volver atras");
 
             int option = -1;
             while (option == -1) {
+                System.out.print("\nSelecciona un número de jugador: ");
                 if (in.hasNextInt())
                     option = in.nextInt();
                 else
                     in.next();
             }
+
+            if (option == 0)
+                return 0;
 
             selectedPlayer = em.find(Player.class, option);
 
@@ -521,10 +525,10 @@ public class PlayerDAO {
             while (player.hand.size() > 4) {
                 System.out.println("\nTienes más de 4 cartas en la mano. Debes descartar una carta.");
                 showHand(em, player.id);
-                System.out.print("\nElige una número: ");
 
                 int option = -1;
                 while (option == -1) {
+                    System.out.print("\nElige una número: ");
                     if (in.hasNextInt())
                         option = in.nextInt();
                     else
@@ -567,15 +571,19 @@ public class PlayerDAO {
 
         while (choosing) {
             showHand(em, idPlayer);
-            System.out.print("\nElige una número: ");
+            System.out.print("\t0 - Volver atras");
 
             int option = -1;
             while (option == -1) {
+                System.out.print("\nElige una número: ");
                 if (in.hasNextInt())
                     option = in.nextInt();
                 else
                     in.next();
             }
+
+            if (option == 0)
+                return 0;
 
             for (Card cardHand : player.hand) {
                 if (cardHand.id == option) {

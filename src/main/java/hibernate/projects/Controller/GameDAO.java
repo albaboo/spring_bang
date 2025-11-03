@@ -219,10 +219,10 @@ public class GameDAO {
         while (selecting) {
             PlayerDAO.showPlayers(em);
             System.out.println("\n\t0 - Volver atras");
-            System.out.print("\nSelecciona un número de jugador: ");
 
             int option = -1;
             while (option == -1) {
+                System.out.print("\nSelecciona un número de jugador: ");
                 if (in.hasNextInt())
                     option = in.nextInt();
                 else
@@ -279,10 +279,10 @@ public class GameDAO {
         while (selecting) {
             showPlayers(em, game.id);
             System.out.println("\n\t0 - Volver atras");
-            System.out.print("\nSelecciona un número de jugador: ");
 
             int option = -1;
             while (option == -1) {
+                System.out.print("\nSelecciona un número de jugador: ");
                 if (in.hasNextInt())
                     option = in.nextInt();
                 else
@@ -457,10 +457,10 @@ public class GameDAO {
                         "=======================================================================================");
 
                 System.out.println("\n\t0 - Pasar turno");
-                System.out.print("\nElige una número: ");
 
                 int option = -1;
                 while (option == -1) {
+                    System.out.print("\nElige una número: ");
                     if (in.hasNextInt())
                         option = in.nextInt();
                     else
@@ -472,24 +472,27 @@ public class GameDAO {
                         PlayerDAO.passTurn(em, idGame, in);
                         break;
                     case 1:
-                        if (PlayerDAO.hasCard(em, currentPlayer.id, WeaponCard.class))
-                            PlayerDAO.equipCard(em, currentPlayer.id,
-                                    PlayerDAO.selectCard(em, currentPlayer.id, WeaponCard.class, in));
-                        else
+                        if (PlayerDAO.hasCard(em, currentPlayer.id, WeaponCard.class)) {
+                            int idCard = PlayerDAO.selectCard(em, currentPlayer.id, WeaponCard.class, in);
+                            if (idCard != 0)
+                                PlayerDAO.equipCard(em, currentPlayer.id, idCard);
+                        } else
                             System.err.println("\n\u001B[31mNo hay cartas de arma disponibles\u001B[0m");
                         break;
                     case 2:
-                        if (PlayerDAO.hasCard(em, currentPlayer.id, EquipmentCard.class))
-                            PlayerDAO.equipCard(em, currentPlayer.id,
-                                    PlayerDAO.selectCard(em, currentPlayer.id, EquipmentCard.class, in));
-                        else
+                        if (PlayerDAO.hasCard(em, currentPlayer.id, EquipmentCard.class)) {
+                            int idCard = PlayerDAO.selectCard(em, currentPlayer.id, EquipmentCard.class, in);
+                            if (idCard != 0)
+                                PlayerDAO.equipCard(em, currentPlayer.id, idCard);
+                        } else
                             System.err.println("\n\u001B[31mNo hay cartas de equipamiento disponibles\u001B[0m");
                         break;
                     case 3:
-                        if (PlayerDAO.hasUseCard(em, currentPlayer.id, TypeUse.BANG))
-                            PlayerDAO.useBang(em, currentPlayer.id,
-                                    PlayerDAO.selectOpponent(em, currentPlayer.id, idGame, in), idGame);
-                        else
+                        if (PlayerDAO.hasUseCard(em, currentPlayer.id, TypeUse.BANG)) {
+                            int idOpponent = PlayerDAO.selectOpponent(em, currentPlayer.id, idGame, in);
+                            if (idOpponent != 0)
+                                PlayerDAO.useBang(em, currentPlayer.id, idOpponent, idGame);
+                        } else
                             System.err.println("\n\u001B[31mNo hay cartas de este tipo de uso disponibles\u001B[0m");
                         break;
                     case 4:
