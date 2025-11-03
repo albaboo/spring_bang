@@ -381,6 +381,7 @@ public class PlayerDAO {
             }
 
             card.player = null;
+            player.hand.remove(card);
             game.discardedCards.add(card);
             card.gamesDiscarded.add(game);
 
@@ -430,6 +431,7 @@ public class PlayerDAO {
                 game.discardedCards.addAll(hand);
                 for (Card card : hand) {
                     card.player = null;
+                    player.hand.remove(card);
                     card.gamesDiscarded.add(game);
                     em.merge(card);
                 }
@@ -487,6 +489,7 @@ public class PlayerDAO {
 
             card.gamesPlaying.remove(game);
             card.player = player;
+            player.hand.add(card);
 
             em.merge(game);
             em.merge(card);
@@ -624,6 +627,7 @@ public class PlayerDAO {
             if (TypeCard.WEAPON.name().equals(card.name)) {
                 WeaponCard weapon = (WeaponCard) card;
                 card.player = null;
+                player.hand.remove(card);
                 em.merge(card);
                 System.out.println(player.name + " ha equipado el arma " + weapon.name);
 
@@ -641,6 +645,7 @@ public class PlayerDAO {
                 if (!hasSame) {
                     cardToEquip.equippedPlayer = player;
                     card.player = null;
+                    player.hand.remove(card);
                     em.merge(cardToEquip);
                     em.merge(card);
                     System.out.println(player.name + " ha equipado el equipo " + cardToEquip.name);
