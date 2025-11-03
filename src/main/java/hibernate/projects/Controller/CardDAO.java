@@ -8,6 +8,7 @@ import hibernate.projects.Entity.EquipmentCard;
 import hibernate.projects.Entity.Game;
 import hibernate.projects.Entity.UseCard;
 import hibernate.projects.Enum.Suit;
+import hibernate.projects.Enum.TypeCard;
 import hibernate.projects.Enum.TypeEquipment;
 import hibernate.projects.Enum.TypeUse;
 import jakarta.persistence.EntityManager;
@@ -58,7 +59,7 @@ public class CardDAO {
                     TypeUse type = uses.get(index % useCount);
                     UseCard useCard = new UseCard();
                     useCard.gamesPlaying.add(game);
-                    useCard.name = type.name();
+                    useCard.name = TypeCard.USE.name();
                     useCard.description = type.description;
                     useCard.type = type;
                     useCard.suit = suits[suitIndex % suits.length];
@@ -76,7 +77,7 @@ public class CardDAO {
                         for (TypeEquipment type : TypeEquipment.values()) {
                             EquipmentCard equipmentCard = new EquipmentCard();
                             equipmentCard.gamesPlaying.add(game);
-                            equipmentCard.name = type.name();
+                            equipmentCard.name = TypeCard.EQUIPMENT.name();
                             equipmentCard.description = type.description;
                             equipmentCard.type = type;
                             if (type == TypeEquipment.HORSE || type == TypeEquipment.TELESCOPIC_SIGHT)

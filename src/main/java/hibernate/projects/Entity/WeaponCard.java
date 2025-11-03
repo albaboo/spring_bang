@@ -9,6 +9,9 @@ import jakarta.persistence.Table;
 @Table(name = "weapon_card")
 public class WeaponCard extends Card {
 
+    @Column(name = "type")
+    public String type;
+
     @Column(name = "distance")
     public int distance;
 

@@ -10,6 +10,7 @@ import hibernate.projects.Entity.Player;
 import hibernate.projects.Entity.Role;
 import hibernate.projects.Entity.WeaponCard;
 import hibernate.projects.Enum.Suit;
+import hibernate.projects.Enum.TypeCard;
 import hibernate.projects.Enum.TypeRole;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -156,8 +157,9 @@ public class GameDAO {
             for (Player player : game.players) {
                 player.role = roles.get(roleIndex % roles.size());
                 WeaponCard colt = new WeaponCard();
-                colt.name = "COLT";
+                colt.name = TypeCard.WEAPON.name();
                 colt.description = "Arma predeterminada";
+                colt.type = "Colt";
                 colt.distance = 1;
                 colt.suit = suits[suitIndex % suits.length];
                 colt.player = player;

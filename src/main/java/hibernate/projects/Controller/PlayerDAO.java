@@ -8,8 +8,15 @@ import java.util.Scanner;
 import java.util.Set;
 
 import hibernate.projects.Entity.Card;
+import hibernate.projects.Entity.EquipmentCard;
 import hibernate.projects.Entity.Game;
 import hibernate.projects.Entity.Player;
+import hibernate.projects.Entity.UseCard;
+import hibernate.projects.Entity.WeaponCard;
+import hibernate.projects.Enum.Suit;
+import hibernate.projects.Enum.TypeCard;
+import hibernate.projects.Enum.TypeEquipment;
+import hibernate.projects.Enum.TypeUse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceException;
@@ -108,7 +115,97 @@ public class PlayerDAO {
         }
     }
 
-    public static void useBang(int idAttacker, int idObjective) {
+    public static void useBang(EntityManager em, int idAttacker, int idDefender, int idGame) {
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+
+            transaction.begin();
+
+            Player attacker = em.find(Player.class, idAttacker);
+            Player defender = em.find(Player.class, idDefender);
+
+            if (attacker == null || defender == null) {
+                System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+                return;
+            }
+
+            UseCard bang = null;
+
+            for (Card card : attacker.hand) {
+                if (card.name == TypeCard.USE.name()) {
+                    UseCard use = em.find(UseCard.class, card.id);
+                    if (use.type == TypeUse.BANG) {
+                        bang = use;
+                        break;
+                    }
+                }
+            }
+
+            if (bang == null) {
+                System.err.println("\n\u001B[31mEl jugador no tiene una carta Bang para usar.\u001B[0m");
+                return;
+            }
+
+            if (!checkDistanceAttack(em, attacker.id, defender.id)) {
+                System.err.println("\n\u001B[31mLa distancia entre jugadores no es valida para el ataque.\u001B[0m");
+                return;
+            }
+
+            discardCard(em, idAttacker, bang.id, idGame);
+
+            System.out.println("El jugador " + attacker.name + " ha jugado un BANG! contra " + defender.name);
+
+            UseCard failed = null;
+            for (Card card : defender.hand) {
+                if (card.name == TypeCard.USE.name()) {
+                    UseCard use = em.find(UseCard.class, card.id);
+                    if (use.type == TypeUse.FAILED) {
+                        failed = use;
+                        break;
+                    }
+                }
+            }
+
+            if (failed == null) {
+
+                EquipmentCard barrel = null;
+                for (EquipmentCard card : defender.equipments) {
+                    if (card.name == TypeCard.EQUIPMENT.name()) {
+                        if (card.type == TypeEquipment.BARREL) {
+                            barrel = card;
+                            break;
+                        }
+                    }
+                }
+
+                if (barrel == null) {
+                    defender.currentLife--;
+                    System.out.println(defender.name + " ha perdido una vida.");
+                } else {
+                    discardCard(em, idDefender, barrel.id, idGame);
+                    Suit suit = GameDAO.showCard(em, idGame);
+                    if (suit == Suit.HEART) {
+                        System.out.println(defender.name + " ha usado una carta BARRIL para evitar el daño.");
+                    } else {
+                        defender.currentLife--;
+                        System.out.println(defender.name + " ha perdido una vida.");
+                    }
+                }
+            } else {
+                discardCard(em, idDefender, failed.id, idGame);
+                System.out.println(defender.name + " ha usado una carta FALLASTE para evitar el daño.");
+            }
+
+            em.merge(attacker);
+            em.merge(defender);
+            transaction.commit();
+
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive())
+                transaction.rollback();
+            System.err.println("\n\u001B[31mError durante el ataque: " + e.getMessage() + "\u001B[0m");
+        }
 
     }
 
@@ -335,18 +432,110 @@ public class PlayerDAO {
 
     }
 
-    public static void equipCard(int idPlayer, int idCard) {
+    public static void equipCard(EntityManager em, int idPlayer, int idCard) {
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            transaction.begin();
+
+            Player player = em.find(Player.class, idPlayer);
+            Card card = em.find(Card.class, idCard);
+
+            if (player == null) {
+                System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+                return;
+            }
+
+            if (card == null) {
+                System.err.println("\n\u001B[31mCarta no encontrada.\u001B[0m");
+                return;
+            }
+
+            if (!player.hand.contains(card)) {
+                System.err.println("\n\u001B[31mEl jugador no tiene esta carta en la mano.\u001B[0m");
+                return;
+            }
+
+            if (card.name == TypeCard.WEAPON.name()) {
+                WeaponCard weapon = em.find(WeaponCard.class, card.id);
+                player.weapon = weapon;
+                System.out.println(player.name + " ha equipado el arma " + weapon.name);
+            } else if (card.name == TypeCard.EQUIPMENT.name()) {
+                boolean hasSame = false;
+                EquipmentCard cardToEquip = em.find(EquipmentCard.class, card.id);
+                for (EquipmentCard equipment : player.equipments) {
+                    if (equipment.name == cardToEquip.name && cardToEquip.type == equipment.type) {
+                        hasSame = true;
+                        break;
+                    }
+                }
+                if (!hasSame) {
+                    player.equipments.add(cardToEquip);
+                    player.hand.remove(card);
+                    System.out.println(player.name + " ha equipado el equipo " + cardToEquip.name);
+                } else {
+                    System.err.println("\n\u001B[31mEl jugador ya tiene un equipo de ese tipo.\u001B[0m");
+                }
+            }
+            em.merge(player);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive())
+                transaction.rollback();
+
+            System.err.println("\n\u001B[31mError al equipar la carta: " + e.getMessage() + "\u001B[0m");
+        }
 
     }
 
-    public static int calculateDistance(int idPlayerOrigin, int idPlayerDestination) {
+    public static int calculateDistance(EntityManager em, int idAttacker, int idDefender) {
+        try {
+            Player attacker = em.find(Player.class, idAttacker);
+            Player defender = em.find(Player.class, idDefender);
 
-        return idPlayerOrigin - idPlayerDestination;
+            if (attacker == null || defender == null) {
+                System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+                return 0;
+            }
+
+            int distance = Math.abs(attacker.id - defender.id);
+
+            for (Card card : attacker.equipments) {
+                if (card.name == TypeCard.EQUIPMENT.name()) {
+                    EquipmentCard equipment = em.find(EquipmentCard.class, card.id);
+                    if (equipment.type == TypeEquipment.HORSE) {
+                        distance -= equipment.distanceModifier;
+                    } else if (equipment.type == TypeEquipment.TELESCOPIC_SIGHT) {
+                        distance -= equipment.distanceModifier;
+                    }
+                }
+            }
+
+            for (Card card : defender.equipments) {
+                if (card.name == TypeCard.EQUIPMENT.name()) {
+                    EquipmentCard equipment = em.find(EquipmentCard.class, card.id);
+                    if (equipment.type == TypeEquipment.HORSE) {
+                        distance += equipment.distanceModifier;
+                    }
+                }
+            }
+
+            distance -= attacker.offDistanceModifier + defender.defDistanceModifier;
+
+            return Math.max(distance, 1);
+        } catch (Exception e) {
+            System.err.println("\n\u001B[31mError al calcular la distancia: " + e.getMessage() + "\u001B[0m");
+        }
+
+        return 1;
     }
 
-    public static boolean checkDistanceAttack(int idAttacker, int idObjective) {
+    public static boolean checkDistanceAttack(EntityManager em, int idAttacker, int idDefender) {
 
-        return false;
+        Player attacker = em.find(Player.class, idAttacker);
+
+        int distance = calculateDistance(em, idAttacker, idDefender);
+
+        return distance <= attacker.weapon.distance;
     }
 
 }
