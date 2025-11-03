@@ -381,10 +381,13 @@ public class PlayerDAO {
             }
 
             player.hand.remove(card);
+            card.player = null;
+            game.discardedCards.add(card);
             card.gamesDiscarded.add(game);
 
             em.merge(player);
             em.merge(game);
+            em.merge(card);
             transaction.commit();
 
             System.out.println("Carta descartada: " + card.name);
@@ -425,8 +428,13 @@ public class PlayerDAO {
                 game.players.remove(player);
 
                 List<Card> hand = player.hand;
-                player.hand.clear();
+                player.hand = new ArrayList<>();
                 game.discardedCards.addAll(hand);
+                for (Card card : hand) {
+                    card.player = null;
+                    card.gamesDiscarded.add(game);
+                    em.merge(card);
+                }
 
                 em.merge(game);
                 em.merge(player);
@@ -480,10 +488,13 @@ public class PlayerDAO {
 
             Card card = game.playingCards.remove(0);
 
+            card.gamesPlaying.remove(game);
+            card.player = player;
             player.hand.add(card);
 
             em.merge(player);
             em.merge(game);
+            em.merge(card);
             transaction.commit();
 
             System.out.println("El jugador " + player.name + " ha robado la carta " + card.name + ".");
@@ -618,7 +629,10 @@ public class PlayerDAO {
             if (TypeCard.WEAPON.name().equals(card.name)) {
                 WeaponCard weapon = (WeaponCard) card;
                 player.weapon = weapon;
+                weapon.equippedPlayer = player;
                 player.hand.remove(card);
+                card.player = null;
+                em.merge(weapon);
                 System.out.println(player.name + " ha equipado el arma " + weapon.name);
 
             } else if (TypeCard.EQUIPMENT.name().equals(card.name)) {
@@ -634,7 +648,10 @@ public class PlayerDAO {
 
                 if (!hasSame) {
                     player.equipments.add(cardToEquip);
+                    cardToEquip.equippedPlayer = player;
                     player.hand.remove(card);
+                    card.player = null;
+                    em.merge(cardToEquip);
                     System.out.println(player.name + " ha equipado el equipo " + cardToEquip.name);
                 } else {
                     System.err.println("\n\u001B[31mEl jugador ya tiene un equipo de ese tipo.\u001B[0m");
@@ -666,7 +683,7 @@ public class PlayerDAO {
 
             for (Card card : attacker.equipments) {
                 if (TypeCard.EQUIPMENT.name().equals(card.name)) {
-                    EquipmentCard equipment = em.find(EquipmentCard.class, card.id);
+                    EquipmentCard equipment = (EquipmentCard) card;
                     if (equipment.type == TypeEquipment.HORSE)
                         distance -= equipment.distanceModifier;
                     else if (equipment.type == TypeEquipment.TELESCOPIC_SIGHT)
@@ -677,7 +694,7 @@ public class PlayerDAO {
 
             for (Card card : defender.equipments) {
                 if (TypeCard.EQUIPMENT.name().equals(card.name)) {
-                    EquipmentCard equipment = em.find(EquipmentCard.class, card.id);
+                    EquipmentCard equipment = (EquipmentCard) card;
 
                     if (equipment.type == TypeEquipment.HORSE)
                         distance += equipment.distanceModifier;

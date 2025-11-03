@@ -161,12 +161,6 @@ public class GameDAO {
                 em.merge(player);
             }
 
-            if (game.players.size() > 0) {
-                System.err.println("\n\u001B[31mNo se han encontrado jugadores.\u001B[0m");
-                transaction.rollback();
-                return -1;
-            }
-
             for (Player player : game.players) {
                 player.role = roles.get(roleIndex % roles.size());
                 if (player.role.type == TypeRole.SHERIFF) {
@@ -184,6 +178,7 @@ public class GameDAO {
                 colt.distance = 1;
                 colt.suit = suits[suitIndex % suits.length];
                 player.weapon = colt;
+                colt.equippedPlayer = player;
                 em.persist(colt);
 
                 for (int i = 0; i < 4 && !cards.isEmpty(); i++) {
@@ -443,7 +438,7 @@ public class GameDAO {
         while (game.active) {
             Player currentPlayer = game.players.get(game.turn % game.players.size());
 
-            System.out.println("Turno de " + currentPlayer.name + " (" + currentPlayer.role.type + ")");
+            System.out.print("Turno de " + currentPlayer.name + " (" + currentPlayer.role.type + ")");
 
             PlayerDAO.stealCard(em, currentPlayer.id, idGame);
             PlayerDAO.stealCard(em, currentPlayer.id, idGame);
