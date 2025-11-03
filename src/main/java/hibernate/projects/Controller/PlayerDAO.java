@@ -300,6 +300,7 @@ public class PlayerDAO {
 
                 if (barrel == null) {
                     defender.currentLife--;
+                    em.merge(defender);
                     System.out.println(defender.name + " ha perdido una vida.");
                 } else {
                     discardCard(em, idDefender, barrel.id, idGame);
@@ -308,6 +309,7 @@ public class PlayerDAO {
                         System.out.println(defender.name + " ha usado una carta BARRIL para evitar el daño.");
                     } else {
                         defender.currentLife--;
+                        em.merge(defender);
                         System.out.println(defender.name + " ha perdido una vida.");
                     }
                 }
@@ -316,8 +318,6 @@ public class PlayerDAO {
                 System.out.println(defender.name + " ha usado una carta FALLASTE para evitar el daño.");
             }
 
-            em.merge(attacker);
-            em.merge(defender);
             transaction.commit();
 
             checkElimination(em, idDefender, idGame);
@@ -380,12 +380,10 @@ public class PlayerDAO {
                 return;
             }
 
-            player.hand.remove(card);
             card.player = null;
             game.discardedCards.add(card);
             card.gamesDiscarded.add(game);
 
-            em.merge(player);
             em.merge(game);
             em.merge(card);
             transaction.commit();
@@ -428,7 +426,7 @@ public class PlayerDAO {
                 game.players.remove(player);
 
                 List<Card> hand = player.hand;
-                player.hand = new ArrayList<>();
+
                 game.discardedCards.addAll(hand);
                 for (Card card : hand) {
                     card.player = null;
@@ -437,7 +435,6 @@ public class PlayerDAO {
                 }
 
                 em.merge(game);
-                em.merge(player);
 
                 System.out.println("El jugador " + player.name + " ha sido eliminado del juego.");
 
@@ -490,9 +487,7 @@ public class PlayerDAO {
 
             card.gamesPlaying.remove(game);
             card.player = player;
-            player.hand.add(card);
 
-            em.merge(player);
             em.merge(game);
             em.merge(card);
             transaction.commit();
@@ -628,11 +623,8 @@ public class PlayerDAO {
 
             if (TypeCard.WEAPON.name().equals(card.name)) {
                 WeaponCard weapon = (WeaponCard) card;
-                player.weapon = weapon;
-                weapon.equippedPlayer = player;
-                player.hand.remove(card);
                 card.player = null;
-                em.merge(weapon);
+                em.merge(card);
                 System.out.println(player.name + " ha equipado el arma " + weapon.name);
 
             } else if (TypeCard.EQUIPMENT.name().equals(card.name)) {
@@ -647,18 +639,15 @@ public class PlayerDAO {
                 }
 
                 if (!hasSame) {
-                    player.equipments.add(cardToEquip);
                     cardToEquip.equippedPlayer = player;
-                    player.hand.remove(card);
                     card.player = null;
                     em.merge(cardToEquip);
+                    em.merge(card);
                     System.out.println(player.name + " ha equipado el equipo " + cardToEquip.name);
                 } else {
                     System.err.println("\n\u001B[31mEl jugador ya tiene un equipo de ese tipo.\u001B[0m");
                 }
             }
-
-            em.merge(player);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive())

@@ -154,22 +154,18 @@ public class GameDAO {
                 transaction.begin();
 
             for (Player player : game.players) {
+                for (Card card : player.hand) {
+                    card.player = null;
+                    em.merge(card);
+                }
                 player.hand = new ArrayList<>();
                 player.equipments = new ArrayList<>();
-                player.weapon = null;
 
-                em.merge(player);
-            }
+                Role role = roles.get(roleIndex % roles.size());
+                player.role = role;
 
-            for (Player player : game.players) {
-                player.role = roles.get(roleIndex % roles.size());
-                if (player.role.type == TypeRole.SHERIFF) {
-                    player.currentLife = 5;
-                    player.maxLife = 5;
-                } else {
-                    player.currentLife = 4;
-                    player.maxLife = 4;
-                }
+                player.maxLife = (player.role != null && player.role.type == TypeRole.SHERIFF) ? 5 : 4;
+                player.currentLife = player.maxLife;
 
                 WeaponCard colt = new WeaponCard();
                 colt.name = TypeCard.WEAPON.name();
@@ -179,12 +175,10 @@ public class GameDAO {
                 colt.suit = suits[suitIndex % suits.length];
                 player.weapon = colt;
                 colt.equippedPlayer = player;
-                em.persist(colt);
 
                 for (int i = 0; i < 4 && !cards.isEmpty(); i++) {
                     Card card = cards.remove(0);
                     card.player = player;
-                    player.hand.add(card);
                     em.merge(card);
 
                 }
@@ -383,7 +377,6 @@ public class GameDAO {
             } catch (Exception e) {
                 if (transaction.isActive())
                     transaction.rollback();
-                e.printStackTrace();
                 System.err.println("\u001B[31mError al registrar la victoria: " + e.getMessage() + "\u001B[0m");
             }
         }
