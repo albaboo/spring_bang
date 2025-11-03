@@ -38,10 +38,10 @@ public class CardDAO {
     }
 
     public static void checkCards(EntityManager em, Game game) {
-        EntityTransaction transaction = null;
+        EntityTransaction transaction = em.getTransaction();
         try {
-            transaction = em.getTransaction();
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             final int NUMBER_CARDS = 80;
             Long existing = 0L;

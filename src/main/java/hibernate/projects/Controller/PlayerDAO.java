@@ -44,29 +44,32 @@ public class PlayerDAO {
 
     public static void addPlayer(EntityManager em, Scanner in) {
         EntityTransaction transaction = em.getTransaction();
-        try {
-            boolean creating = true;
-            in.nextLine();
-            while (creating) {
-                System.out.print("\nEscribe un nombre de jugador: ");
-                String name = in.nextLine();
 
-                if (name.length() > 0) {
-                    Player newPlayer = new Player();
-                    newPlayer.name = name;
-                    transaction.begin();
+        boolean creating = true;
+        in.nextLine();
+        while (creating) {
+            System.out.print("\nEscribe un nombre de jugador: ");
+            String name = in.nextLine();
+
+            if (name.length() > 0) {
+                Player newPlayer = new Player();
+                newPlayer.name = name;
+                try {
+                    if (!transaction.isActive())
+                        transaction.begin();
+
                     em.persist(newPlayer);
                     transaction.commit();
                     System.out.println("Añadido: " + newPlayer.name);
                     creating = false;
+                } catch (Exception e) {
+                    if (transaction != null && transaction.isActive())
+                        transaction.rollback();
+                    System.err.println(
+                            "\n\u001B[31mError durante la inserción de datos: " + e.getMessage() + "\u001B[0m");
                 }
-
             }
 
-        } catch (Exception e) {
-            if (transaction != null && transaction.isActive())
-                transaction.rollback();
-            System.err.println("\n\u001B[31mError durante la inserción de datos: " + e.getMessage() + "\u001B[0m");
         }
 
     }
@@ -186,7 +189,8 @@ public class PlayerDAO {
         EntityTransaction transaction = em.getTransaction();
 
         try {
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             Player player = em.find(Player.class, idPlayer);
             Game game = em.find(Game.class, idGame);
@@ -232,7 +236,8 @@ public class PlayerDAO {
 
         try {
 
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             Player attacker = em.find(Player.class, idAttacker);
             Player defender = em.find(Player.class, idDefender);
@@ -329,7 +334,8 @@ public class PlayerDAO {
         EntityTransaction transaction = em.getTransaction();
         try {
 
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             Player player = em.find(Player.class, idPlayer);
 
@@ -393,7 +399,8 @@ public class PlayerDAO {
         EntityTransaction transaction = em.getTransaction();
         try {
 
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             Player player = em.find(Player.class, idPlayer);
 
@@ -448,7 +455,8 @@ public class PlayerDAO {
         EntityTransaction transaction = em.getTransaction();
 
         try {
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             Player player = em.find(Player.class, idPlayer);
             if (player == null) {
@@ -498,7 +506,8 @@ public class PlayerDAO {
     public static void passTurn(EntityManager em, int idGame, Scanner in) {
         EntityTransaction transaction = em.getTransaction();
         try {
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             Game game = em.find(Game.class, idGame);
 
@@ -594,7 +603,8 @@ public class PlayerDAO {
     public static void equipCard(EntityManager em, int idPlayer, int idCard) {
         EntityTransaction transaction = em.getTransaction();
         try {
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             Player player = em.find(Player.class, idPlayer);
             Card card = em.find(Card.class, idCard);

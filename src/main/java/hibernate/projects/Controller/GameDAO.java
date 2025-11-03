@@ -92,7 +92,9 @@ public class GameDAO {
         EntityTransaction transaction = em.getTransaction();
 
         try {
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
+
             em.persist(game);
             transaction.commit();
 
@@ -148,7 +150,8 @@ public class GameDAO {
                 return -1;
             }
 
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             game.players.forEach(p -> {
                 if (!p.hand.isEmpty())
@@ -160,6 +163,12 @@ public class GameDAO {
 
                 em.merge(p);
             });
+
+            if (game.players.size() > 0) {
+                System.err.println("\n\u001B[31mNo se han encontrado jugadores.\u001B[0m");
+                transaction.rollback();
+                return -1;
+            }
 
             for (Player player : game.players) {
                 player.role = roles.get(roleIndex % roles.size());
@@ -241,7 +250,9 @@ public class GameDAO {
                     EntityTransaction transaction = em.getTransaction();
 
                     try {
-                        transaction.begin();
+                        if (!transaction.isActive())
+                            transaction.begin();
+
                         selectedPlayer.games.add(game);
                         game.players.add(selectedPlayer);
 
@@ -300,7 +311,8 @@ public class GameDAO {
 
                     try {
 
-                        transaction.begin();
+                        if (!transaction.isActive())
+                            transaction.begin();
 
                         selectedPlayer.games.remove(game);
                         game.players.remove(selectedPlayer);
@@ -364,7 +376,9 @@ public class GameDAO {
 
             EntityTransaction transaction = em.getTransaction();
             try {
-                transaction.begin();
+                if (!transaction.isActive())
+                    transaction.begin();
+
                 if (winner == TypeRole.SHERIFF)
                     game.status = "WIN " + winner + " & " + TypeRole.ASSISTANT;
                 else
@@ -401,7 +415,8 @@ public class GameDAO {
 
         try {
 
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             Card card = game.playingCards.remove(0);
             game.discardedCards.add(0, card);

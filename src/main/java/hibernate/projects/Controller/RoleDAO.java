@@ -20,7 +20,8 @@ public class RoleDAO {
     public static void checkRoles(EntityManager em) {
         EntityTransaction transaction = em.getTransaction();
         try {
-            transaction.begin();
+            if (!transaction.isActive())
+                transaction.begin();
 
             for (TypeRole type : TypeRole.values()) {
                 Long count = em.createQuery("SELECT COUNT(r) FROM Role r WHERE r.type = :type", Long.class)
