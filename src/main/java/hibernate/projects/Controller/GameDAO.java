@@ -20,6 +20,7 @@ import jakarta.persistence.PersistenceException;
 
 public class GameDAO {
 
+    // Devuelve la lista de jugadores de una partida
     public static List<Player> listPlayers(EntityManager em, int idGame) {
 
         Game game = em.find(Game.class, idGame);
@@ -30,6 +31,7 @@ public class GameDAO {
         return game.players != null ? game.players : new ArrayList<>();
     }
 
+    // Muestra la lista de jugadores de una partida
     public static void showPlayers(EntityManager em, int idGame) {
         List<Player> players = listPlayers(em, idGame);
 
@@ -41,6 +43,7 @@ public class GameDAO {
 
     }
 
+    // Muestra el estado actual de la partida
     public static void show(EntityManager em, int idGame) {
 
         Game game = em.find(Game.class, idGame);
@@ -86,6 +89,7 @@ public class GameDAO {
 
     }
 
+    // Inicia una nueva partida y prepara los jugadores, roles y cartas
     public static int start(EntityManager em, Scanner in) {
 
         Game game = new Game();
@@ -212,6 +216,7 @@ public class GameDAO {
         return game.id;
     }
 
+    // Añade un jugador a la partida
     private static Game addPlayer(Scanner in, EntityManager em, Game game) {
 
         boolean selecting = true;
@@ -273,6 +278,7 @@ public class GameDAO {
 
     }
 
+    // Elimina un jugador de la partida
     private static Game removePlayer(Scanner in, EntityManager em, Game game) {
 
         boolean selecting = true;
@@ -330,6 +336,7 @@ public class GameDAO {
         return game;
     }
 
+    // Comprueba si hay un ganador en la partida
     public static void checkVictory(EntityManager em, int idGame) {
 
         Game game = em.find(Game.class, idGame);
@@ -388,6 +395,7 @@ public class GameDAO {
         }
     }
 
+    // Muestra el palo de la primera carta del mazo y la mueve a descartes
     public static Suit showCard(EntityManager em, int idGame) {
 
         Game game = em.find(Game.class, idGame);
@@ -426,6 +434,7 @@ public class GameDAO {
 
     }
 
+    // Controla el bucle principal del juego (turnos y acciones)
     public static void play(EntityManager em, int idGame, Scanner in) {
 
         Game game = em.find(Game.class, idGame);
