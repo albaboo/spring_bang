@@ -438,6 +438,7 @@ public class PlayerDAO {
             if (game.playingCards.isEmpty()) {
                 System.err.println("\n\u001B[31mNo hay cartas disponibles para robar.\u001B[0m");
                 transaction.rollback();
+                return;
             }
 
             Card card = game.playingCards.remove(0);
