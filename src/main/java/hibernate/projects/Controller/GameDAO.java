@@ -153,16 +153,13 @@ public class GameDAO {
             if (!transaction.isActive())
                 transaction.begin();
 
-            game.players.forEach(p -> {
-                if (!p.hand.isEmpty())
-                    p.hand.clear();
-                if (!p.equipments.isEmpty())
-                    p.equipments.clear();
-                if (p.weapon != null)
-                    p.weapon = null;
+            for (Player player : game.players) {
+                player.hand = new ArrayList<>();
+                player.equipments = new ArrayList<>();
+                player.weapon = null;
 
-                em.merge(p);
-            });
+                em.merge(player);
+            }
 
             if (game.players.size() > 0) {
                 System.err.println("\n\u001B[31mNo se han encontrado jugadores.\u001B[0m");

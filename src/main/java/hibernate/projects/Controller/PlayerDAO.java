@@ -406,7 +406,6 @@ public class PlayerDAO {
 
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -414,13 +413,11 @@ public class PlayerDAO {
 
             if (game == null || !game.active) {
                 System.err.println("\n\u001B[31mJuego no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
             if (!game.players.contains(player)) {
                 System.err.println("\n\u001B[31mEl jugador no está participando en el juego seleccionado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -461,7 +458,6 @@ public class PlayerDAO {
             Player player = em.find(Player.class, idPlayer);
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -469,19 +465,16 @@ public class PlayerDAO {
 
             if (game == null || !game.active) {
                 System.err.println("\n\u001B[31mJuego no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
             if (!game.players.contains(player)) {
                 System.err.println("\n\u001B[31mEl jugador no está participando en el juego seleccionado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
             if (game.playingCards.isEmpty()) {
                 System.err.println("\n\u001B[31mNo hay cartas disponibles para robar.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -513,7 +506,6 @@ public class PlayerDAO {
 
             if (game == null || !game.active) {
                 System.err.println("\n\u001B[31mJuego no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -521,7 +513,6 @@ public class PlayerDAO {
 
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -611,19 +602,16 @@ public class PlayerDAO {
 
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
             if (card == null) {
                 System.err.println("\n\u001B[31mCarta no encontrada.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
             if (!player.hand.contains(card)) {
                 System.err.println("\n\u001B[31mEl jugador no tiene esta carta en la mano.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
