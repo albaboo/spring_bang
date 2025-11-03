@@ -59,7 +59,7 @@ public class GameDAO {
                 System.out.println("\t" + player.name + " (Vidas: " + player.currentLife + ")");
 
                 if (player.weapon != null) {
-                    System.out.println("\t\tArma: " + player.weapon.name);
+                    System.out.println("\t\tArma: " + player.weapon.type);
                 }
 
                 if (player.equipments.size() > 0) {

@@ -1,6 +1,7 @@
 package hibernate.projects.Controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -484,6 +485,8 @@ public class PlayerDAO {
                 System.err.println("\n\u001B[31mNo hay cartas disponibles para robar.\u001B[0m");
                 return;
             }
+
+            Collections.shuffle(game.playingCards);
 
             Card card = game.playingCards.remove(0);
 

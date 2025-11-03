@@ -1,6 +1,7 @@
 package hibernate.projects.Controller;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import hibernate.projects.Entity.Card;
@@ -34,6 +35,7 @@ public class CardDAO {
                 .setParameter("game", game)
                 .getResultList();
 
+        Collections.shuffle(cards);
         return cards;
     }
 

@@ -53,10 +53,9 @@ public abstract class Card {
     public String toString() {
         String suitName = (suit != null) ? suit.name() : "Sense pal";
 
-        return id + " - Card{" +
-                "name='" + name + '\'' +
-                ", description='" + (description != null ? description : "") + '\'' +
-                ", suit=" + suitName + '}';
+        return id + " - Card " + "'" + name + '\'' +
+                ": '" + (description != null ? description : "") + '\'' +
+                ", " + suitName;
     }
 
 }
