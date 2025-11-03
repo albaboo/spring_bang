@@ -158,6 +158,12 @@ public class GameDAO {
                     card.player = null;
                     em.merge(card);
                 }
+
+                for (EquipmentCard card : player.equipments) {
+                    card.player = null;
+                    em.merge(card);
+                }
+
                 player.hand = new ArrayList<>();
                 player.equipments = new ArrayList<>();
 
@@ -179,6 +185,7 @@ public class GameDAO {
                 for (int i = 0; i < 4 && !cards.isEmpty(); i++) {
                     Card card = cards.remove(0);
                     card.player = player;
+                    player.hand.add(card);
                     em.merge(card);
 
                 }
