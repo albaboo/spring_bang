@@ -145,12 +145,6 @@ public class GameDAO {
 
             List<Card> cards = CardDAO.shuffle(em, game);
 
-            if (cards.isEmpty()) {
-                System.err.println("\n\u001B[31mNo se han encontrado cartas para repartir.\u001B[0m");
-                transaction.rollback();
-                return -1;
-            }
-
             if (!transaction.isActive())
                 transaction.begin();
 
