@@ -169,7 +169,8 @@ public class GameDAO {
 
                 Role role = roles.get(roleIndex % roles.size());
                 player.role = role;
-
+                role.players.add(player);
+                
                 player.maxLife = (player.role != null && player.role.type == TypeRole.SHERIFF) ? 5 : 4;
                 player.currentLife = player.maxLife;
 
@@ -179,7 +180,6 @@ public class GameDAO {
                 colt.type = "Colt";
                 colt.distance = 1;
                 colt.suit = suits[suitIndex % suits.length];
-                player.weapon = colt;
                 em.persist(colt);
 
                 for (int i = 0; i < 4 && !cards.isEmpty(); i++) {
@@ -195,6 +195,10 @@ public class GameDAO {
                         player.distance.add(player2);
 
                 }
+
+                
+                player.weapon = colt;
+                colt.equippedPlayer = player;
 
                 em.merge(player);
                 roleIndex++;
