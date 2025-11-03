@@ -7,7 +7,6 @@ import hibernate.projects.Controller.PlayerDAO;
 import hibernate.projects.Controller.RoleDAO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceException;
 
@@ -30,10 +29,8 @@ public class Main {
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         EntityManager em = null;
-        EntityTransaction transaction = null;
         try {
             em = getEntityManagerFactory().createEntityManager();
-            transaction = em.getTransaction();
 
             RoleDAO.checkRoles(em);
 
@@ -46,7 +43,7 @@ public class Main {
                 System.out.println("\t4 - Salir");
                 System.out.println("====================================");
                 System.out.print("\nElige una número: ");
-                
+
                 int option = -1;
                 if (in.hasNextInt())
                     option = in.nextInt();
@@ -86,9 +83,6 @@ public class Main {
             System.out.println("Cerrando programa...");
 
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive())
-                transaction.rollback();
-
             System.err.println("\n\u001B[31mError durante la ejecución del programa: " + e.getMessage() + "\u001B[0m");
         } finally {
             in.close();
