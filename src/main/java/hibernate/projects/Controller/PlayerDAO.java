@@ -222,6 +222,7 @@ public class PlayerDAO {
                         } else {
                             System.out.println(player.name + " ya tiene la vida máxima.");
                         }
+                        break;
                     }
                 }
             }
@@ -320,7 +321,7 @@ public class PlayerDAO {
 
             if (!transaction.isActive())
                 transaction.begin();
-                
+
             transaction.commit();
 
             checkElimination(em, idDefender, idGame);
