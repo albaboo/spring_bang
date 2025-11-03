@@ -57,7 +57,8 @@ public class Main {
                     case 1:
                         if (PlayerDAO.list(em).size() > 1) {
                             int idGame = GameDAO.start(em, in);
-                            GameDAO.play(em, idGame, in);
+                            if (idGame != -1)
+                                GameDAO.play(em, idGame, in);
                         } else
                             System.err.println("\n\u001B[31mNo hay jugadores suficientes registrados\u001B[0m");
                         break;

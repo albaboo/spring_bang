@@ -59,8 +59,7 @@ public class GameDAO {
                 System.out.println("\t" + player.name + " (Vidas: " + player.currentLife + ")");
 
                 if (player.weapon != null) {
-                    System.out.println("\t\tArma:");
-                    System.out.println("\t\t\t" + player.weapon.name);
+                    System.out.println("\t\tArma: " + player.weapon.name);
                 }
 
                 if (player.equipments.size() > 0) {
@@ -143,6 +142,12 @@ public class GameDAO {
 
             List<Card> cards = CardDAO.shuffle(em, game);
 
+            if (cards.isEmpty()) {
+                System.err.println("\n\u001B[31mNo se han encontrado cartas para repartir.\u001B[0m");
+                transaction.rollback();
+                return -1;
+            }
+
             transaction.begin();
 
             game.players.forEach(p -> {
@@ -172,7 +177,6 @@ public class GameDAO {
                 colt.type = "Colt";
                 colt.distance = 1;
                 colt.suit = suits[suitIndex % suits.length];
-                colt.player = player;
                 player.weapon = colt;
                 em.persist(colt);
 
@@ -435,7 +439,8 @@ public class GameDAO {
             boolean playing = true;
 
             while (playing) {
-                System.out.println("\n========== MENÚ DE TURNO ==========");
+                System.out.println(
+                        "\n==================================== MENÚ DE TURNO ====================================");
                 System.out.println("\t1 - Equipar arma");
                 System.out.println("\t2 - Equipar equipamiento");
                 System.out.println("\t3 - Usar " + TypeUse.BANG.name() + " -> " + TypeUse.BANG.description);
@@ -443,7 +448,9 @@ public class GameDAO {
                 System.out.println("\t5 - Mostrar mano");
                 System.out.println("\t6 - Mostrar resumen de jugador");
                 System.out.println("\t7 - Mostrar estado de la partida");
-                System.out.println("====================================");
+                System.out.println(
+                        "=======================================================================================");
+
                 System.out.println("\n\t0 - Pasar turno");
                 System.out.print("\nElige una número: ");
 

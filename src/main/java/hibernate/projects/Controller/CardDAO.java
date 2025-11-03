@@ -59,6 +59,7 @@ public class CardDAO {
                     TypeUse type = uses.get(index % useCount);
                     UseCard useCard = new UseCard();
                     useCard.gamesPlaying.add(game);
+                    game.playingCards.add(useCard);
                     useCard.name = TypeCard.USE.name();
                     useCard.description = type.description;
                     useCard.type = type;
@@ -77,6 +78,7 @@ public class CardDAO {
                         for (TypeEquipment type : TypeEquipment.values()) {
                             EquipmentCard equipmentCard = new EquipmentCard();
                             equipmentCard.gamesPlaying.add(game);
+                            game.playingCards.add(equipmentCard);
                             equipmentCard.name = TypeCard.EQUIPMENT.name();
                             equipmentCard.description = type.description;
                             equipmentCard.type = type;

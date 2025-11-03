@@ -132,11 +132,13 @@ public class PlayerDAO {
                 return;
             }
 
-            System.out.println("\n==================== MANO DEL JUGADOR ====================");
+            System.out.println(
+                    "\n==================================== MANO DEL JUGADOR ====================================");
             for (Card card : hand) {
                 System.out.println("\t" + card);
             }
-            System.out.println("=========================================================");
+            System.out
+                    .println("=======================================================================================");
 
         } catch (PersistenceException e) {
             System.err.println(
@@ -158,22 +160,25 @@ public class PlayerDAO {
             return;
         }
 
-        System.out.println("\n==================== RESUMEN DEL JUGADOR ====================");
+        System.out.println(
+                "\n==================================== RESUMEN DEL JUGADOR ====================================");
         System.out.println("\tRol: " + player.role.type);
         System.out.println("\tObjetivo: " + player.role.objective);
         System.out.println("\tVida actual: " + player.currentLife + "/" + player.maxLife);
         System.out.println("\tArma: " + player.weapon.name);
-        System.out.println("\tEquipamiento: ");
-        for (EquipmentCard card : player.equipments) {
-            if (card.type != TypeEquipment.BARREL)
-                System.out.println("\t\t" + card.name + " - " + card.type + ", " + card.description + "( Modifier: "
-                        + card.distanceModifier
-                        + ", Suit: " + card.suit + " )");
-            else
-                System.out.println("\t\t" + card.name + " - " + card.type + ", " + card.description + "( Suit: "
-                        + card.suit + " )");
+        if (player.equipments.size() > 0) {
+            System.out.println("\tEquipamiento:");
+            for (EquipmentCard card : player.equipments) {
+                if (card.type != TypeEquipment.BARREL)
+                    System.out.println("\t\t" + card.name + " - " + card.type + ", " + card.description
+                            + " ( Modifier: " + card.distanceModifier + ", Suit: " + card.suit + " )");
+                else
+                    System.out.println("\t\t" + card.name + " - " + card.type + ", " + card.description
+                            + " ( Suit: " + card.suit + " )");
+            }
         }
-        System.out.println("==============================================================");
+        System.out.println(
+                "===============================================================================================");
     }
 
     public static void useBeer(EntityManager em, int idPlayer, int idGame) {
