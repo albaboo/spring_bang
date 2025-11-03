@@ -12,6 +12,7 @@ import jakarta.persistence.PersistenceException;
 
 public class Main {
 
+    // Inicializa la conexión a la base de datos mediante Hibernate (JPA)
     private static EntityManagerFactory emFactory;
 
     public static EntityManagerFactory getEntityManagerFactory() {
@@ -30,10 +31,12 @@ public class Main {
         Scanner in = new Scanner(System.in);
         EntityManager em = null;
         try {
+            // Conecta con la base de datos y verifica los roles iniciales
             em = getEntityManagerFactory().createEntityManager();
 
             RoleDAO.checkRoles(em);
 
+            // Menú principal del juego
             boolean playing = true;
             while (playing) {
                 System.out.println("\n========== MENÚ PRINCIPAL ==========");
@@ -85,6 +88,7 @@ public class Main {
         } catch (Exception e) {
             System.err.println("\n\u001B[31mError durante la ejecución del programa: " + e.getMessage() + "\u001B[0m");
         } finally {
+            // Cierra recursos y conexión
             in.close();
 
             if (em != null && em.isOpen())
