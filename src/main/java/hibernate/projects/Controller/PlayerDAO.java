@@ -387,11 +387,7 @@ public class PlayerDAO {
     }
 
     public static void checkElimination(EntityManager em, int idPlayer, int idGame) {
-        EntityTransaction transaction = em.getTransaction();
         try {
-
-            if (!transaction.isActive())
-                transaction.begin();
 
             Player player = em.find(Player.class, idPlayer);
 
@@ -431,15 +427,9 @@ public class PlayerDAO {
 
             }
 
-            transaction.commit();
-
             GameDAO.checkVictory(em, idGame);
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive())
-                transaction.rollback();
-
-            System.err.println(
-                    "\n\u001B[31mError al comprobar la eliminación del jugador: " + e.getMessage() + "\u001B[0m");
+            throw new RuntimeException(e.getMessage());
         }
 
     }
@@ -624,7 +614,7 @@ public class PlayerDAO {
                 card.player = null;
                 player.hand.remove(card);
                 em.merge(card);
-                System.out.println(player.name + " ha equipado el arma " + weapon.name);
+                System.out.println(player.name + " ha equipado el arma " + weapon.type);
 
             } else if (TypeCard.EQUIPMENT.name().equals(card.name)) {
                 boolean hasSame = false;
@@ -643,7 +633,7 @@ public class PlayerDAO {
                     player.hand.remove(card);
                     em.merge(cardToEquip);
                     em.merge(card);
-                    System.out.println(player.name + " ha equipado el equipo " + cardToEquip.name);
+                    System.out.println(player.name + " ha equipado el equipo " + cardToEquip.type);
                 } else {
                     System.err.println("\n\u001B[31mEl jugador ya tiene un equipo de ese tipo.\u001B[0m");
                 }

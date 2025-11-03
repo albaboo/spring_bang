@@ -359,16 +359,12 @@ public class GameDAO {
         }
 
         TypeRole winner = (sheriff == 0 && malfactor > 0) ? TypeRole.MALFACTOR
-                : (malfactor == 0 && renegade == 0) ? TypeRole.SHERIFF
+                : (malfactor == 0 && renegade == 0 && sheriff > 0) ? TypeRole.SHERIFF
                         : (sheriff == 0 && assistant == 0 && malfactor == 0 && renegade > 0) ? TypeRole.RENEGADE
                                 : null;
 
         if (winner != null) {
-
-            EntityTransaction transaction = em.getTransaction();
             try {
-                if (!transaction.isActive())
-                    transaction.begin();
 
                 if (winner == TypeRole.SHERIFF)
                     game.status = "WIN " + winner + " & " + TypeRole.ASSISTANT;
@@ -378,11 +374,8 @@ public class GameDAO {
                 System.out.println(game.status);
                 game.active = false;
                 em.merge(game);
-                transaction.commit();
             } catch (Exception e) {
-                if (transaction.isActive())
-                    transaction.rollback();
-                System.err.println("\u001B[31mError al registrar la victoria: " + e.getMessage() + "\u001B[0m");
+                throw new RuntimeException(e.getMessage());
             }
         }
     }
