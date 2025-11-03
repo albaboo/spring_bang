@@ -391,9 +391,8 @@ public class PlayerDAO {
 
         try {
 
-            if (!transaction.isActive())
-                transaction.begin();
-
+            transaction.begin();
+            
             Player player = em.find(Player.class, idPlayer);
 
             if (player == null) {
