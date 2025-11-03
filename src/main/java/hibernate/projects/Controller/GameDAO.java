@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import hibernate.projects.Entity.Card;
+import hibernate.projects.Entity.EquipmentCard;
 import hibernate.projects.Entity.Game;
 import hibernate.projects.Entity.Player;
 import hibernate.projects.Entity.Role;
@@ -12,6 +13,7 @@ import hibernate.projects.Entity.WeaponCard;
 import hibernate.projects.Enum.Suit;
 import hibernate.projects.Enum.TypeCard;
 import hibernate.projects.Enum.TypeRole;
+import hibernate.projects.Enum.TypeUse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceException;
@@ -39,14 +41,9 @@ public class GameDAO {
 
     }
 
-    public static Game getGame(EntityManager em, int idGame) {
-
-        return em.find(Game.class, idGame);
-    }
-
     public static void showGame(EntityManager em, int idGame) {
 
-        Game game = getGame(em, idGame);
+        Game game = em.find(Game.class, idGame);
         if (game == null) {
             System.out.println("\u001B[31mNo se ha encontrado ninguna partida con ID " + idGame + ".\u001B[0m");
             return;
@@ -89,7 +86,7 @@ public class GameDAO {
 
     }
 
-    public static Game startGame(EntityManager em, Scanner in) {
+    public static int start(EntityManager em, Scanner in) {
 
         Game game = new Game();
 
@@ -113,7 +110,12 @@ public class GameDAO {
                 System.out.println("=============================================================");
                 System.out.print("\nElige una número: ");
 
-                int option = in.nextInt();
+                int option = -1;
+                if (in.hasNextInt())
+                    option = in.nextInt();
+                else
+                    in.next();
+
                 switch (option) {
                     case 1:
                         game = addPlayer(in, em, game);
@@ -156,6 +158,14 @@ public class GameDAO {
 
             for (Player player : game.players) {
                 player.role = roles.get(roleIndex % roles.size());
+                if (player.role.type == TypeRole.SHERIFF) {
+                    player.currentLife = 5;
+                    player.maxLife = 5;
+                } else {
+                    player.currentLife = 4;
+                    player.maxLife = 4;
+                }
+
                 WeaponCard colt = new WeaponCard();
                 colt.name = TypeCard.WEAPON.name();
                 colt.description = "Arma predeterminada";
@@ -192,7 +202,7 @@ public class GameDAO {
                 transaction.rollback();
             System.err.println("\n\u001B[31mError durante la inserción de datos: " + e.getMessage() + "\u001B[0m");
         }
-        return game;
+        return game.id;
     }
 
     private static Game addPlayer(Scanner in, EntityManager em, Game game) {
@@ -203,7 +213,15 @@ public class GameDAO {
             PlayerDAO.showPlayers(em);
             System.out.println("\n\t0 - Volver atras");
             System.out.print("\nSelecciona un número de jugador: ");
-            int option = in.nextInt();
+
+            int option = -1;
+            while (option == -1) {
+                if (in.hasNextInt())
+                    option = in.nextInt();
+                else
+                    in.next();
+            }
+
             if (option == 0)
                 selecting = false;
             else {
@@ -253,7 +271,14 @@ public class GameDAO {
             showPlayers(em, game.id);
             System.out.println("\n\t0 - Volver atras");
             System.out.print("\nSelecciona un número de jugador: ");
-            int option = in.nextInt();
+
+            int option = -1;
+            while (option == -1) {
+                if (in.hasNextInt())
+                    option = in.nextInt();
+                else
+                    in.next();
+            }
 
             if (option == 0)
                 selecting = false;
@@ -356,7 +381,7 @@ public class GameDAO {
 
     public static Suit showCard(EntityManager em, int idGame) {
 
-        Game game = getGame(em, idGame);
+        Game game = em.find(Game.class, idGame);
 
         if (game == null) {
             System.out.println("\u001B[31mNo se ha encontrado la partida con ID " + idGame + ".\u001B[0m");
@@ -390,4 +415,77 @@ public class GameDAO {
         }
 
     }
+
+    public static void play(EntityManager em, int idGame, Scanner in) {
+
+        Game game = em.find(Game.class, idGame);
+        if (game == null) {
+            System.out.println("\u001B[31mNo se ha encontrado la partida con ID " + idGame + ".\u001B[0m");
+            return;
+        }
+
+        while (game.active) {
+            Player currentPlayer = game.players.get(game.turn % game.players.size());
+
+            PlayerDAO.stealCard(em, currentPlayer.id, idGame);
+            PlayerDAO.stealCard(em, currentPlayer.id, idGame);
+
+            boolean playing = true;
+
+            while (playing) {
+                System.out.println("\n========== MENÚ DE TURNO ==========");
+                System.out.println("\t1 - Equipar arma");
+                System.out.println("\t2 - Equipar equipamiento");
+                System.out.println("\t3 - Usar " + TypeUse.BANG.name() + " -> " + TypeUse.BANG.description);
+                System.out.println("\t4 - Usar " + TypeUse.BEER.name() + " -> " + TypeUse.BEER.description);
+                System.out.println("====================================");
+                System.out.println("\n\t0 - Pasar turno");
+                System.out.print("\nElige una número: ");
+
+                int option = -1;
+                while (option == -1) {
+                    if (in.hasNextInt())
+                        option = in.nextInt();
+                    else
+                        in.next();
+                }
+
+                switch (option) {
+                    case 0:
+                        PlayerDAO.passTurn(em, idGame, in);
+                        break;
+                    case 1:
+                        if (PlayerDAO.hasCard(em, currentPlayer.id, WeaponCard.class))
+                            PlayerDAO.equipCard(em, currentPlayer.id,
+                                    PlayerDAO.selectCard(em, currentPlayer.id, WeaponCard.class, in));
+                        else
+                            System.err.println("\n\u001B[31mNo hay cartas de arma disponibles\u001B[0m");
+                        break;
+                    case 2:
+                        if (PlayerDAO.hasCard(em, currentPlayer.id, EquipmentCard.class))
+                            PlayerDAO.equipCard(em, currentPlayer.id,
+                                    PlayerDAO.selectCard(em, currentPlayer.id, EquipmentCard.class, in));
+                        else
+                            System.err.println("\n\u001B[31mNo hay cartas de equipamiento disponibles\u001B[0m");
+                        break;
+                    case 3:
+                        if (PlayerDAO.hasUseCard(em, currentPlayer.id, TypeUse.BANG))
+                            PlayerDAO.useBang(em, currentPlayer.id,
+                                    PlayerDAO.selectOpponent(em, currentPlayer.id, idGame, in), idGame);
+                        else
+                            System.err.println("\n\u001B[31mNo hay cartas de este tipo de uso disponibles\u001B[0m");
+                        break;
+                    case 4:
+                        if (PlayerDAO.hasUseCard(em, currentPlayer.id, TypeUse.BEER))
+                            PlayerDAO.useBeer(em, currentPlayer.id, idGame);
+                        else
+                            System.err.println("\n\u001B[31mNo hay cartas de este tipo de uso disponibles\u001B[0m");
+                        break;
+
+                }
+            }
+
+        }
+    }
+
 }

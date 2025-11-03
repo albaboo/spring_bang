@@ -1,11 +1,8 @@
 package hibernate.projects.Controller;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
 import hibernate.projects.Entity.Card;
 import hibernate.projects.Entity.EquipmentCard;
@@ -23,15 +20,15 @@ import jakarta.persistence.PersistenceException;
 
 public class PlayerDAO {
 
-    public static Set<Player> list(EntityManager em) {
+    public static List<Player> list(EntityManager em) {
 
-        Set<Player> players = new HashSet<>(em.createQuery("FROM Player", Player.class).getResultList());
+        List<Player> players = em.createQuery("FROM Player", Player.class).getResultList();
 
         return players;
     }
 
     public static void showPlayers(EntityManager em) {
-        Set<Player> players = new HashSet<Player>();
+        List<Player> players = new ArrayList<Player>();
         try {
             players = PlayerDAO.list(em);
             System.out.println("\n==================== LISTA DE JUGADORES ====================");
@@ -53,6 +50,7 @@ public class PlayerDAO {
             while (creating) {
                 System.out.print("\nEscribe un nombre de jugador: ");
                 String name = in.nextLine();
+
                 if (name.length() > 0) {
                     Player newPlayer = new Player();
                     newPlayer.name = name;
@@ -73,7 +71,39 @@ public class PlayerDAO {
 
     }
 
-    public static Deque<Card> getHand(EntityManager em, int idPlayer) {
+    public static int selectOpponent(EntityManager em, int idPlayer, int idGame, Scanner in) {
+
+        boolean selecting = true;
+        Player selectedPlayer = null;
+        Game game = em.find(Game.class, idGame);
+
+        while (selecting) {
+            PlayerDAO.showPlayers(em);
+            System.out.print("\nSelecciona un número de jugador: ");
+
+            int option = -1;
+            while (option == -1) {
+                if (in.hasNextInt())
+                    option = in.nextInt();
+                else
+                    in.next();
+            }
+
+            selectedPlayer = em.find(Player.class, option);
+
+            if (selectedPlayer == null || !game.players.contains(selectedPlayer))
+                System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+            else if (selectedPlayer.id == idPlayer)
+                System.err.println("\n\u001B[31mEl jugador oponente no puede ser el mismo que el atacante.\u001B[0m");
+            else
+                selecting = false;
+
+        }
+
+        return selectedPlayer.id;
+    }
+
+    public static List<Card> getHand(EntityManager em, int idPlayer) {
 
         try {
             Player player = em.find(Player.class, idPlayer);
@@ -83,7 +113,7 @@ public class PlayerDAO {
                 return null;
             }
 
-            return new ArrayDeque<>(player.hand);
+            return player.hand;
         } catch (PersistenceException e) {
             System.err.println(
                     "\n\u001B[31mError durant la recuperació de la mà del jugador: " + e.getMessage() + "\u001B[0m");
@@ -94,7 +124,7 @@ public class PlayerDAO {
     public static void showHand(EntityManager em, int idPlayer) {
 
         try {
-            Deque<Card> hand = getHand(em, idPlayer);
+            List<Card> hand = getHand(em, idPlayer);
 
             if (hand == null || hand.isEmpty()) {
                 System.out.println("\u001B[31mNo se ha encontrado ninguna carta en la mano del jugador con ID "
@@ -115,6 +145,52 @@ public class PlayerDAO {
         }
     }
 
+    public static void useBeer(EntityManager em, int idPlayer, int idGame) {
+
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            transaction.begin();
+
+            Player player = em.find(Player.class, idPlayer);
+            Game game = em.find(Game.class, idGame);
+
+            if (player == null) {
+                System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+                transaction.rollback();
+                return;
+            }
+
+            if (game == null) {
+                System.err.println("\n\u001B[31mPartida no encontrada.\u001B[0m");
+                transaction.rollback();
+                return;
+            }
+
+            for (Card card : player.hand) {
+                if (TypeCard.USE.name().equals(card.name)) {
+                    UseCard use = (UseCard) card;
+                    if (use.type == TypeUse.BEER) {
+                        if (player.currentLife + 1 <= player.maxLife) {
+                            player.currentLife++;
+                            discardCard(em, idPlayer, use.id, idGame);
+                            transaction.commit();
+                            System.out.println(player.name + " ha usado una carta BEER y ha recuperado 1 vida.");
+                        } else {
+                            System.out.println(player.name + " ya tiene la vida máxima.");
+                        }
+                    }
+                }
+            }
+
+        } catch (PersistenceException e) {
+            if (transaction != null && transaction.isActive())
+                transaction.rollback();
+            System.err.println("\n\u001B[31mError durante el uso de la carta BEER: " + e.getMessage() + "\u001B[0m");
+            return;
+        }
+    }
+
     public static void useBang(EntityManager em, int idAttacker, int idDefender, int idGame) {
         EntityTransaction transaction = em.getTransaction();
 
@@ -127,14 +203,15 @@ public class PlayerDAO {
 
             if (attacker == null || defender == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             UseCard bang = null;
 
             for (Card card : attacker.hand) {
-                if (card.name == TypeCard.USE.name()) {
-                    UseCard use = em.find(UseCard.class, card.id);
+                if (TypeCard.USE.name().equals(card.name)) {
+                    UseCard use = (UseCard) card;
                     if (use.type == TypeUse.BANG) {
                         bang = use;
                         break;
@@ -143,23 +220,25 @@ public class PlayerDAO {
             }
 
             if (bang == null) {
-                System.err.println("\n\u001B[31mEl jugador no tiene una carta Bang para usar.\u001B[0m");
+                System.err.println("\n\u001B[31mEl jugador no tiene una carta BANG para usar.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             if (!checkDistanceAttack(em, attacker.id, defender.id)) {
                 System.err.println("\n\u001B[31mLa distancia entre jugadores no es valida para el ataque.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             discardCard(em, idAttacker, bang.id, idGame);
 
-            System.out.println("El jugador " + attacker.name + " ha jugado un BANG! contra " + defender.name);
+            System.out.println("El jugador " + attacker.name + " ha jugado un BANG contra " + defender.name);
 
             UseCard failed = null;
             for (Card card : defender.hand) {
-                if (card.name == TypeCard.USE.name()) {
-                    UseCard use = em.find(UseCard.class, card.id);
+                if (TypeCard.USE.name().equals(card.name)) {
+                    UseCard use = (UseCard) card;
                     if (use.type == TypeUse.FAILED) {
                         failed = use;
                         break;
@@ -168,10 +247,9 @@ public class PlayerDAO {
             }
 
             if (failed == null) {
-
                 EquipmentCard barrel = null;
                 for (EquipmentCard card : defender.equipments) {
-                    if (card.name == TypeCard.EQUIPMENT.name()) {
+                    if (TypeCard.EQUIPMENT.name().equals(card.name)) {
                         if (card.type == TypeEquipment.BARREL) {
                             barrel = card;
                             break;
@@ -219,20 +297,22 @@ public class PlayerDAO {
 
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             Card card = null;
 
-            for (Card cardHCard : player.hand) {
-                if (cardHCard.id == idCard) {
-                    card = cardHCard;
+            for (Card cardFind : player.hand) {
+                if (cardFind.id == idCard) {
+                    card = cardFind;
                     break;
                 }
             }
 
             if (card == null) {
                 System.err.println("\n\u001B[31mCarta no encontrada en la mano del jugador.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
@@ -240,16 +320,19 @@ public class PlayerDAO {
 
             if (game == null || !game.active) {
                 System.err.println("\n\u001B[31mEl juego no se encuentra o no está activo.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             if (!game.players.contains(player)) {
                 System.err.println("\n\u001B[31mEl jugador no está participando en el juego seleccionado.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             if (!game.playingCards.contains(card)) {
                 System.err.println("\n\u001B[31mLa carta no está en el juego activo.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
@@ -294,7 +377,6 @@ public class PlayerDAO {
             }
 
             if (player.currentLife <= 0) {
-
                 game.players.remove(player);
 
                 List<Card> hand = player.hand;
@@ -332,6 +414,7 @@ public class PlayerDAO {
             Player player = em.find(Player.class, idPlayer);
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
@@ -339,25 +422,22 @@ public class PlayerDAO {
 
             if (game == null || !game.active) {
                 System.err.println("\n\u001B[31mJuego no encontrado.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             if (!game.players.contains(player)) {
                 System.err.println("\n\u001B[31mEl jugador no está participando en el juego seleccionado.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             if (game.playingCards.isEmpty()) {
                 System.err.println("\n\u001B[31mNo hay cartas disponibles para robar.\u001B[0m");
-                return;
+                transaction.rollback();
             }
 
             Card card = game.playingCards.remove(0);
-
-            if (card == null) {
-                System.err.println("\n\u001B[31mCarta no disponible.\u001B[0m");
-                return;
-            }
 
             player.hand.add(card);
 
@@ -375,9 +455,8 @@ public class PlayerDAO {
 
     }
 
-    public static void passTurn(EntityManager em, int idGame) {
+    public static void passTurn(EntityManager em, int idGame, Scanner in) {
         EntityTransaction transaction = em.getTransaction();
-        Scanner in = new Scanner(System.in);
         try {
             transaction.begin();
 
@@ -385,6 +464,7 @@ public class PlayerDAO {
 
             if (game == null || !game.active) {
                 System.err.println("\n\u001B[31mJuego no encontrado.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
@@ -392,6 +472,7 @@ public class PlayerDAO {
 
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
@@ -399,9 +480,15 @@ public class PlayerDAO {
                 System.out.println("\nTienes más de 4 cartas en la mano. Debes descartar una carta.");
                 showHand(em, player.id);
                 System.out.print("\nElige una número: ");
-                int option = in.nextInt();
 
-                // encontrar carta por id
+                int option = -1;
+                while (option == -1) {
+                    if (in.hasNextInt())
+                        option = in.nextInt();
+                    else
+                        in.next();
+                }
+
                 Card card = null;
                 for (Card cardHand : player.hand) {
                     if (cardHand.id == option) {
@@ -410,9 +497,9 @@ public class PlayerDAO {
                     }
                 }
 
-                if (card == null) {
+                if (card == null)
                     System.out.println("\n\u001B[31mCarta no encontrada.\u001B[0m");
-                } else {
+                else {
                     discardCard(em, player.id, card.id, idGame);
                     player = em.find(Player.class, player.id);
                 }
@@ -420,16 +507,48 @@ public class PlayerDAO {
 
             game.turn++;
 
+            em.merge(game);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive())
                 transaction.rollback();
 
             System.err.println("\n\u001B[31mError al pasar el turno: " + e.getMessage() + "\u001B[0m");
-        } finally {
-            in.close();
         }
 
+    }
+
+    public static int selectCard(EntityManager em, int idPlayer, Class<? extends Card> type, Scanner in) {
+        boolean choosing = true;
+        Card card = null;
+        Player player = em.find(Player.class, idPlayer);
+
+        while (choosing) {
+            showHand(em, idPlayer);
+            System.out.print("\nElige una número: ");
+
+            int option = -1;
+            while (option == -1) {
+                if (in.hasNextInt())
+                    option = in.nextInt();
+                else
+                    in.next();
+            }
+
+            for (Card cardHand : player.hand) {
+                if (cardHand.id == option) {
+                    card = cardHand;
+                    break;
+                }
+            }
+
+            if (card == null)
+                System.out.println("\n\u001B[31mCarta no encontrada.\u001B[0m");
+            else if (type.isInstance(card))
+                choosing = false;
+
+        }
+        return card.id;
     }
 
     public static void equipCard(EntityManager em, int idPlayer, int idCard) {
@@ -442,32 +561,39 @@ public class PlayerDAO {
 
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             if (card == null) {
                 System.err.println("\n\u001B[31mCarta no encontrada.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
             if (!player.hand.contains(card)) {
                 System.err.println("\n\u001B[31mEl jugador no tiene esta carta en la mano.\u001B[0m");
+                transaction.rollback();
                 return;
             }
 
-            if (card.name == TypeCard.WEAPON.name()) {
-                WeaponCard weapon = em.find(WeaponCard.class, card.id);
+            if (TypeCard.WEAPON.name().equals(card.name)) {
+                WeaponCard weapon = (WeaponCard) card;
                 player.weapon = weapon;
+                player.hand.remove(card);
                 System.out.println(player.name + " ha equipado el arma " + weapon.name);
-            } else if (card.name == TypeCard.EQUIPMENT.name()) {
+
+            } else if (TypeCard.EQUIPMENT.name().equals(card.name)) {
                 boolean hasSame = false;
-                EquipmentCard cardToEquip = em.find(EquipmentCard.class, card.id);
+                EquipmentCard cardToEquip = (EquipmentCard) card;
+
                 for (EquipmentCard equipment : player.equipments) {
-                    if (equipment.name == cardToEquip.name && cardToEquip.type == equipment.type) {
+                    if (equipment.name.equals(cardToEquip.name) && cardToEquip.type == equipment.type) {
                         hasSame = true;
                         break;
                     }
                 }
+
                 if (!hasSame) {
                     player.equipments.add(cardToEquip);
                     player.hand.remove(card);
@@ -476,6 +602,7 @@ public class PlayerDAO {
                     System.err.println("\n\u001B[31mEl jugador ya tiene un equipo de ese tipo.\u001B[0m");
                 }
             }
+
             em.merge(player);
             transaction.commit();
         } catch (Exception e) {
@@ -500,22 +627,23 @@ public class PlayerDAO {
             int distance = Math.abs(attacker.id - defender.id);
 
             for (Card card : attacker.equipments) {
-                if (card.name == TypeCard.EQUIPMENT.name()) {
+                if (TypeCard.EQUIPMENT.name().equals(card.name)) {
                     EquipmentCard equipment = em.find(EquipmentCard.class, card.id);
-                    if (equipment.type == TypeEquipment.HORSE) {
+                    if (equipment.type == TypeEquipment.HORSE)
                         distance -= equipment.distanceModifier;
-                    } else if (equipment.type == TypeEquipment.TELESCOPIC_SIGHT) {
+                    else if (equipment.type == TypeEquipment.TELESCOPIC_SIGHT)
                         distance -= equipment.distanceModifier;
-                    }
+
                 }
             }
 
             for (Card card : defender.equipments) {
-                if (card.name == TypeCard.EQUIPMENT.name()) {
+                if (TypeCard.EQUIPMENT.name().equals(card.name)) {
                     EquipmentCard equipment = em.find(EquipmentCard.class, card.id);
-                    if (equipment.type == TypeEquipment.HORSE) {
+
+                    if (equipment.type == TypeEquipment.HORSE)
                         distance += equipment.distanceModifier;
-                    }
+
                 }
             }
 
@@ -533,9 +661,41 @@ public class PlayerDAO {
 
         Player attacker = em.find(Player.class, idAttacker);
 
+        if (attacker.weapon == null)
+            return false;
+
         int distance = calculateDistance(em, idAttacker, idDefender);
 
         return distance <= attacker.weapon.distance;
     }
 
+    public static boolean hasCard(EntityManager em, int playerId, Class<? extends Card> type) {
+        Player player = em.find(Player.class, playerId);
+
+        if (player == null || player.hand == null)
+            return false;
+
+        for (Card card : player.hand) {
+            if (type.isInstance(card))
+                return true;
+
+        }
+        return false;
+    }
+
+    public static boolean hasUseCard(EntityManager em, int playerId, TypeUse type) {
+        Player player = em.find(Player.class, playerId);
+
+        if (player == null || player.hand == null)
+            return false;
+
+        for (Card card : player.hand) {
+            if (card instanceof UseCard) {
+                UseCard useCard = (UseCard) card;
+                if (useCard.type == type)
+                    return true;
+            }
+        }
+        return false;
+    }
 }

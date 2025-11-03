@@ -2,6 +2,7 @@ package hibernate.projects;
 
 import java.util.Scanner;
 
+import hibernate.projects.Controller.GameDAO;
 import hibernate.projects.Controller.PlayerDAO;
 import hibernate.projects.Controller.RoleDAO;
 import jakarta.persistence.EntityManager;
@@ -45,12 +46,19 @@ public class Main {
                 System.out.println("\t4 - Salir");
                 System.out.println("====================================");
                 System.out.print("\nElige una número: ");
-                int option = in.nextInt();
+                
+                int option = -1;
+                if (in.hasNextInt())
+                    option = in.nextInt();
+                else
+                    in.next();
+
                 switch (option) {
                     case 1:
-                        if (PlayerDAO.list(em).size() > 1)
-                            hibernate.projects.Controller.GameDAO.startGame(em, in);
-                        else
+                        if (PlayerDAO.list(em).size() > 1) {
+                            int idGame = GameDAO.start(em, in);
+                            GameDAO.play(em, idGame, in);
+                        } else
                             System.err.println("\n\u001B[31mNo hay jugadores suficientes registrados\u001B[0m");
                         break;
 
