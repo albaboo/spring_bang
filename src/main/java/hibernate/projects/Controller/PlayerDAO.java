@@ -145,6 +145,37 @@ public class PlayerDAO {
         }
     }
 
+    public static void show(EntityManager em, int idPlayer) {
+        Player player = em.find(Player.class, idPlayer);
+
+        if (player == null) {
+            System.out.println("\u001B[31mNo se ha encontrado ningún jugador con ID " + idPlayer + ".\u001B[0m");
+            return;
+        }
+
+        if (player.role == null) {
+            System.out.println("\u001B[31mEl jugador con ID " + idPlayer + " no tiene un rol asignado.\u001B[0m");
+            return;
+        }
+
+        System.out.println("\n==================== RESUMEN DEL JUGADOR ====================");
+        System.out.println("\tRol: " + player.role.type);
+        System.out.println("\tObjetivo: " + player.role.objective);
+        System.out.println("\tVida actual: " + player.currentLife + "/" + player.maxLife);
+        System.out.println("\tArma: " + player.weapon.name);
+        System.out.println("\tEquipamiento: ");
+        for (EquipmentCard card : player.equipments) {
+            if (card.type != TypeEquipment.BARREL)
+                System.out.println("\t\t" + card.name + " - " + card.type + ", " + card.description + "( Modifier: "
+                        + card.distanceModifier
+                        + ", Suit: " + card.suit + " )");
+            else
+                System.out.println("\t\t" + card.name + " - " + card.type + ", " + card.description + "( Suit: "
+                        + card.suit + " )");
+        }
+        System.out.println("==============================================================");
+    }
+
     public static void useBeer(EntityManager em, int idPlayer, int idGame) {
 
         EntityTransaction transaction = em.getTransaction();

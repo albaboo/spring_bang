@@ -196,7 +196,7 @@ public class GameDAO {
             }
 
             game.playingCards = cards;
-            
+
             em.merge(game);
             transaction.commit();
 
@@ -427,6 +427,8 @@ public class GameDAO {
         while (game.active) {
             Player currentPlayer = game.players.get(game.turn % game.players.size());
 
+            System.out.println("Turno de " + currentPlayer.name + " (" + currentPlayer.role.type + ")");
+
             PlayerDAO.stealCard(em, currentPlayer.id, idGame);
             PlayerDAO.stealCard(em, currentPlayer.id, idGame);
 
@@ -438,7 +440,9 @@ public class GameDAO {
                 System.out.println("\t2 - Equipar equipamiento");
                 System.out.println("\t3 - Usar " + TypeUse.BANG.name() + " -> " + TypeUse.BANG.description);
                 System.out.println("\t4 - Usar " + TypeUse.BEER.name() + " -> " + TypeUse.BEER.description);
-                System.out.println("\t5 - Mostrar estado de la partida");
+                System.out.println("\t5 - Mostrar mano");
+                System.out.println("\t6 - Mostrar resumen de jugador");
+                System.out.println("\t7 - Mostrar estado de la partida");
                 System.out.println("====================================");
                 System.out.println("\n\t0 - Pasar turno");
                 System.out.print("\nElige una número: ");
@@ -483,6 +487,12 @@ public class GameDAO {
                             System.err.println("\n\u001B[31mNo hay cartas de este tipo de uso disponibles\u001B[0m");
                         break;
                     case 5:
+                        PlayerDAO.showHand(em, currentPlayer.id);
+                        break;
+                    case 6:
+                        PlayerDAO.show(em, currentPlayer.id);
+                        break;
+                    case 7:
                         GameDAO.show(em, idGame);
                         break;
 
