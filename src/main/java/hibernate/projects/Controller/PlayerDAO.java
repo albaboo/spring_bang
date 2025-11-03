@@ -30,6 +30,7 @@ public class PlayerDAO {
 
     public static void showPlayers(EntityManager em) {
         List<Player> players = new ArrayList<Player>();
+
         try {
             players = PlayerDAO.list(em);
             System.out.println("\n==================== LISTA DE JUGADORES ====================");
@@ -157,7 +158,7 @@ public class PlayerDAO {
 
     public static void show(EntityManager em, int idPlayer) {
         Player player = em.find(Player.class, idPlayer);
-
+        em.refresh(player);
         if (player == null) {
             System.out.println("\u001B[31mNo se ha encontrado ningún jugador con ID " + idPlayer + ".\u001B[0m");
             return;
@@ -174,8 +175,8 @@ public class PlayerDAO {
         System.out.println("\tObjetivo: " + player.role.objective);
         System.out.println("\tVida actual: " + player.currentLife + "/" + player.maxLife);
         System.out.println("\tArma: " + player.weapon.type);
+        System.out.println("\tEquipamiento:" + player.equipments.size());
         if (player.equipments.size() > 0) {
-            System.out.println("\tEquipamiento:");
             for (EquipmentCard card : player.equipments) {
                 if (card.type != TypeEquipment.BARREL)
                     System.out.println("\t\t" + card.name + " - " + card.type + ", " + card.description
@@ -245,6 +246,8 @@ public class PlayerDAO {
 
             Player attacker = em.find(Player.class, idAttacker);
             Player defender = em.find(Player.class, idDefender);
+            em.refresh(attacker);
+            em.refresh(defender);
 
             if (attacker == null || defender == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
@@ -601,6 +604,8 @@ public class PlayerDAO {
             Player player = em.find(Player.class, idPlayer);
             Card card = em.find(Card.class, idCard);
 
+            em.refresh(player);
+
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
                 return;
@@ -636,10 +641,8 @@ public class PlayerDAO {
 
                 if (!hasSame) {
                     cardToEquip.equippedPlayer = player;
-                    card.player = null;
-                    player.hand.remove(card);
+                    player.hand.remove(cardToEquip);
                     em.merge(cardToEquip);
-                    em.merge(card);
                     System.out.println(player.name + " ha equipado el equipo " + cardToEquip.type);
                 } else {
                     System.err.println("\n\u001B[31mEl jugador ya tiene un equipo de ese tipo.\u001B[0m");
@@ -659,6 +662,8 @@ public class PlayerDAO {
         try {
             Player attacker = em.find(Player.class, idAttacker);
             Player defender = em.find(Player.class, idDefender);
+            em.refresh(attacker);
+            em.refresh(defender);
 
             if (attacker == null || defender == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");

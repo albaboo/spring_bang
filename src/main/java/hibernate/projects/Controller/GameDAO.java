@@ -515,7 +515,7 @@ public class GameDAO {
 
                 }
 
-                game = em.find(Game.class, idGame);
+                em.refresh(game);
 
                 if (!game.active) {
                     playing = false;
