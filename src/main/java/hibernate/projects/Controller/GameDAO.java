@@ -368,8 +368,7 @@ public class GameDAO {
 
             try {
 
-                if (!transaction.isActive())
-                    transaction.begin();
+                transaction.begin();
 
                 if (winner == TypeRole.SHERIFF)
                     game.status = "WIN " + winner + " & " + TypeRole.ASSISTANT;
