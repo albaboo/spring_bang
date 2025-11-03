@@ -364,7 +364,12 @@ public class GameDAO {
                                 : null;
 
         if (winner != null) {
+            EntityTransaction transaction = em.getTransaction();
+
             try {
+
+                if (!transaction.isActive())
+                    transaction.begin();
 
                 if (winner == TypeRole.SHERIFF)
                     game.status = "WIN " + winner + " & " + TypeRole.ASSISTANT;
@@ -374,8 +379,12 @@ public class GameDAO {
                 System.out.println(game.status);
                 game.active = false;
                 em.merge(game);
+                em.flush();
             } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
+                if (transaction != null && transaction.isActive())
+                    transaction.rollback();
+                System.err.println(
+                        "\u001B[31mError al comprobar la victoria: " + e.getMessage() + "\u001B[0m");
             }
         }
     }

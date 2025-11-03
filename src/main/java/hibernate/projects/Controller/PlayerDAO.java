@@ -387,7 +387,12 @@ public class PlayerDAO {
     }
 
     public static void checkElimination(EntityManager em, int idPlayer, int idGame) {
+        EntityTransaction transaction = em.getTransaction();
+
         try {
+
+            if (!transaction.isActive())
+                transaction.begin();
 
             Player player = em.find(Player.class, idPlayer);
 
@@ -427,9 +432,13 @@ public class PlayerDAO {
 
             }
 
+            transaction.commit();
             GameDAO.checkVictory(em, idGame);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            if (transaction != null && transaction.isActive())
+                transaction.rollback();
+            System.err.println(
+                    "\n\u001B[31mError al comprobar la eliminación del jugador: " + e.getMessage() + "\u001B[0m");
         }
 
     }
