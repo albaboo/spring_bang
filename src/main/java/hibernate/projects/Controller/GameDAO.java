@@ -174,7 +174,7 @@ public class GameDAO {
                 colt.distance = 1;
                 colt.suit = suits[suitIndex % suits.length];
                 player.weapon = colt;
-                colt.equippedPlayer = player;
+                em.persist(colt);
 
                 for (int i = 0; i < 4 && !cards.isEmpty(); i++) {
                     Card card = cards.remove(0);
