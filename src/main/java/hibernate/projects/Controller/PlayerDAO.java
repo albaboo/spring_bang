@@ -392,7 +392,7 @@ public class PlayerDAO {
         try {
 
             transaction.begin();
-            
+
             Player player = em.find(Player.class, idPlayer);
 
             if (player == null) {
@@ -415,12 +415,11 @@ public class PlayerDAO {
             if (player.currentLife <= 0) {
                 game.players.remove(player);
 
-                List<Card> hand = player.hand;
+                List<Card> hand = new ArrayList<>(player.hand);
 
                 game.discardedCards.addAll(hand);
                 for (Card card : hand) {
                     card.player = null;
-                    player.hand.remove(card);
                     card.gamesDiscarded.add(game);
                     em.merge(card);
                 }
