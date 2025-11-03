@@ -378,6 +378,7 @@ public class GameDAO {
                 System.out.println(game.status);
                 game.active = false;
                 em.merge(game);
+                transaction.commit();
             } catch (Exception e) {
                 if (transaction != null && transaction.isActive())
                     transaction.rollback();
