@@ -318,6 +318,9 @@ public class PlayerDAO {
                 System.out.println(defender.name + " ha usado una carta FALLASTE para evitar el daño.");
             }
 
+            if (!transaction.isActive())
+                transaction.begin();
+                
             transaction.commit();
 
             checkElimination(em, idDefender, idGame);
@@ -332,6 +335,7 @@ public class PlayerDAO {
 
     public static void discardCard(EntityManager em, int idPlayer, int idCard, int idGame) {
         EntityTransaction transaction = em.getTransaction();
+        
         try {
 
             if (!transaction.isActive())
