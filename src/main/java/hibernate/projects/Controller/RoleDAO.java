@@ -10,6 +10,7 @@ import jakarta.persistence.PersistenceException;
 
 public class RoleDAO {
 
+    // Devuelve todos los roles almacenados en la base de datos
     public static List<Role> list(EntityManager em) {
 
         List<Role> roles = em.createQuery("FROM Role", Role.class).getResultList();
@@ -17,16 +18,21 @@ public class RoleDAO {
         return roles;
     }
 
+    // Verifica que todos los roles del juego existan en la base de datos.
+    // Si falta alguno, lo crea automáticamente.
     public static void checkRoles(EntityManager em) {
         EntityTransaction transaction = em.getTransaction();
         try {
             if (!transaction.isActive())
                 transaction.begin();
 
+            // Recorre todos los tipos de roles del enum
             for (TypeRole type : TypeRole.values()) {
                 Long count = em.createQuery("SELECT COUNT(r) FROM Role r WHERE r.type = :type", Long.class)
                         .setParameter("type", type)
                         .getSingleResult();
+
+                // Si no existe ese tipo de rol, se crea uno nuevo
                 if (count == 0) {
                     Role role = new Role();
                     role.type = type;
