@@ -18,6 +18,7 @@ import jakarta.persistence.PersistenceException;
 
 public class CardDAO {
 
+    // Devuelve todas las cartas de una partida
     public static List<Card> list(EntityManager em, Game game) {
 
         List<Card> cards = em.createQuery("FROM Card c WHERE :game MEMBER OF c.gamesPlaying", Card.class)
@@ -27,6 +28,7 @@ public class CardDAO {
         return cards;
     }
 
+    // Baraja las cartas de una partida
     public static List<Card> shuffle(EntityManager em, Game game) {
 
         List<Card> cards = em
@@ -39,13 +41,14 @@ public class CardDAO {
         return cards;
     }
 
+    // Comprueba si existen cartas en la partida. Si no, crea un mazo inicial.
     public static void checkCards(EntityManager em, Game game) {
         EntityTransaction transaction = em.getTransaction();
         try {
             if (!transaction.isActive())
                 transaction.begin();
 
-            final int NUMBER_CARDS = 80;
+            final int NUMBER_CARDS = 80; // Número total de cartas
             Long existing = 0L;
 
             Suit[] suits = Suit.values();
@@ -57,6 +60,8 @@ public class CardDAO {
                 int useCount = uses.size();
                 int created = 0;
                 int index = 0;
+
+                // Crea cartas de tipo USE
                 while (created < 43 && existing < NUMBER_CARDS) {
                     TypeUse type = uses.get(index % useCount);
                     UseCard useCard = new UseCard();
@@ -76,6 +81,7 @@ public class CardDAO {
                 }
 
                 if (existing < NUMBER_CARDS) {
+                    // Crea cartas de tipo EQUIPMENT
                     for (int i = 0; i < 4 && existing < NUMBER_CARDS; i++) {
                         for (TypeEquipment type : TypeEquipment.values()) {
                             EquipmentCard equipmentCard = new EquipmentCard();
