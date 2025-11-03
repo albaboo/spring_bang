@@ -319,9 +319,6 @@ public class PlayerDAO {
                 System.out.println(defender.name + " ha usado una carta FALLASTE para evitar el daño.");
             }
 
-            if (!transaction.isActive())
-                transaction.begin();
-
             transaction.commit();
 
             checkElimination(em, idDefender, idGame);
@@ -335,12 +332,7 @@ public class PlayerDAO {
     }
 
     public static void discardCard(EntityManager em, int idPlayer, int idCard, int idGame) {
-        EntityTransaction transaction = em.getTransaction();
-        
         try {
-
-            if (!transaction.isActive())
-                transaction.begin();
 
             Player player = em.find(Player.class, idPlayer);
 
@@ -387,13 +379,10 @@ public class PlayerDAO {
 
             em.merge(game);
             em.merge(card);
-            transaction.commit();
 
             System.out.println("Carta descartada: " + card.name);
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive())
-                transaction.rollback();
-            System.err.println("\n\u001B[31mError durante la eliminación de la carta: " + e.getMessage() + "\u001B[0m");
+            throw new RuntimeException(e.getMessage());
         }
     }
 
