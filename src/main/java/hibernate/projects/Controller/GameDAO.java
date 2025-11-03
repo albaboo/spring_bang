@@ -59,6 +59,7 @@ public class GameDAO {
                 System.out.println("\t" + player.name + " (Vidas: " + player.currentLife + ")");
 
                 if (player.weapon != null) {
+                    player.weapon = (WeaponCard) player.weapon;
                     System.out.println("\t\tArma: " + player.weapon.type);
                 }
 
@@ -197,7 +198,6 @@ public class GameDAO {
 
                 }
 
-                
                 player.weapon = colt;
 
                 em.merge(player);

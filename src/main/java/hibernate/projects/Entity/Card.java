@@ -54,8 +54,8 @@ public abstract class Card {
         String suitName = (suit != null) ? suit.name() : "Sense pal";
 
         return id + " - Card " + "'" + name + '\'' +
-                ": '" + (description != null ? description : "") + '\'' +
-                ", " + suitName;
+                ": " + (description != null ? description : "") +
+                " " + suitName;
     }
 
 }

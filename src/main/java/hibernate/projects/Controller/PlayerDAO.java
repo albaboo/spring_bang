@@ -169,7 +169,7 @@ public class PlayerDAO {
         System.out.println("\tRol: " + player.role.type);
         System.out.println("\tObjetivo: " + player.role.objective);
         System.out.println("\tVida actual: " + player.currentLife + "/" + player.maxLife);
-        System.out.println("\tArma: " + player.weapon.name);
+        System.out.println("\tArma: " + player.weapon.type);
         if (player.equipments.size() > 0) {
             System.out.println("\tEquipamiento:");
             for (EquipmentCard card : player.equipments) {
@@ -198,13 +198,11 @@ public class PlayerDAO {
 
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
             if (game == null) {
                 System.err.println("\n\u001B[31mPartida no encontrada.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -245,7 +243,6 @@ public class PlayerDAO {
 
             if (attacker == null || defender == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -263,13 +260,11 @@ public class PlayerDAO {
 
             if (bang == null) {
                 System.err.println("\n\u001B[31mEl jugador no tiene una carta BANG para usar.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
             if (!checkDistanceAttack(em, attacker.id, defender.id)) {
                 System.err.println("\n\u001B[31mLa distancia entre jugadores no es valida para el ataque.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -342,7 +337,6 @@ public class PlayerDAO {
 
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -357,7 +351,6 @@ public class PlayerDAO {
 
             if (card == null) {
                 System.err.println("\n\u001B[31mCarta no encontrada en la mano del jugador.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
@@ -365,19 +358,16 @@ public class PlayerDAO {
 
             if (game == null || !game.active) {
                 System.err.println("\n\u001B[31mEl juego no se encuentra o no está activo.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
             if (!game.players.contains(player)) {
                 System.err.println("\n\u001B[31mEl jugador no está participando en el juego seleccionado.\u001B[0m");
-                transaction.rollback();
                 return;
             }
 
-            if (!game.playingCards.contains(card)) {
-                System.err.println("\n\u001B[31mLa carta no está en el juego activo.\u001B[0m");
-                transaction.rollback();
+            if (!player.hand.contains(card)) {
+                System.err.println("\n\u001B[31mLa carta no está en la mano del jugador.\u001B[0m");
                 return;
             }
 
