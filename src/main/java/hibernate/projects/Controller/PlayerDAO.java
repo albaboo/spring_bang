@@ -279,6 +279,8 @@ public class PlayerDAO {
             em.merge(defender);
             transaction.commit();
 
+            checkElimination(em, idDefender, idGame);
+
         } catch (Exception e) {
             if (transaction != null && transaction.isActive())
                 transaction.rollback();
@@ -351,7 +353,7 @@ public class PlayerDAO {
         }
     }
 
-    public static boolean checkElimination(EntityManager em, int idPlayer, int idGame) {
+    public static void checkElimination(EntityManager em, int idPlayer, int idGame) {
         EntityTransaction transaction = em.getTransaction();
         try {
 
@@ -361,19 +363,22 @@ public class PlayerDAO {
 
             if (player == null) {
                 System.err.println("\n\u001B[31mJugador no encontrado.\u001B[0m");
-                return false;
+                transaction.rollback();
+                return;
             }
 
             Game game = em.find(Game.class, idGame);
 
             if (game == null || !game.active) {
                 System.err.println("\n\u001B[31mJuego no encontrado.\u001B[0m");
-                return false;
+                transaction.rollback();
+                return;
             }
 
             if (!game.players.contains(player)) {
                 System.err.println("\n\u001B[31mEl jugador no está participando en el juego seleccionado.\u001B[0m");
-                return false;
+                transaction.rollback();
+                return;
             }
 
             if (player.currentLife <= 0) {
@@ -392,7 +397,7 @@ public class PlayerDAO {
 
             transaction.commit();
 
-            return GameDAO.checkVictory(em, idGame);
+            GameDAO.checkVictory(em, idGame);
         } catch (Exception e) {
             if (transaction != null && transaction.isActive())
                 transaction.rollback();
@@ -400,8 +405,6 @@ public class PlayerDAO {
             System.err.println(
                     "\n\u001B[31mError al comprobar la eliminación del jugador: " + e.getMessage() + "\u001B[0m");
         }
-
-        return false;
 
     }
 

@@ -320,11 +320,11 @@ public class GameDAO {
         return game;
     }
 
-    public static boolean checkVictory(EntityManager em, int idGame) {
+    public static void checkVictory(EntityManager em, int idGame) {
 
         Game game = em.find(Game.class, idGame);
         if (game == null)
-            return false;
+            return;
 
         int sheriff = 0, malfactor = 0, renegade = 0, assistant = 0;
 
@@ -367,7 +367,6 @@ public class GameDAO {
                 game.active = false;
                 em.merge(game);
                 transaction.commit();
-                return true;
             } catch (Exception e) {
                 if (transaction.isActive())
                     transaction.rollback();
@@ -375,8 +374,6 @@ public class GameDAO {
                 System.err.println("\u001B[31mError al registrar la victoria: " + e.getMessage() + "\u001B[0m");
             }
         }
-
-        return false;
     }
 
     public static Suit showCard(EntityManager em, int idGame) {
@@ -483,8 +480,14 @@ public class GameDAO {
                         break;
 
                 }
-            }
 
+                game = em.find(Game.class, idGame);
+
+                if (!game.active) {
+                    playing = false;
+                }
+            }
+            System.out.println("\n==================== FIN DEL JUEGO ====================");
         }
     }
 
