@@ -470,6 +470,7 @@ public class GameDAO {
                 switch (option) {
                     case 0:
                         PlayerDAO.passTurn(em, idGame, in);
+                        playing = false;
                         break;
                     case 1:
                         if (PlayerDAO.hasCard(em, currentPlayer.id, WeaponCard.class)) {
