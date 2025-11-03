@@ -21,6 +21,7 @@ import jakarta.persistence.PersistenceException;
 
 public class PlayerDAO {
 
+    // Devuelve la lista de jugadores registrados en la base de datos
     public static List<Player> list(EntityManager em) {
 
         List<Player> players = em.createQuery("FROM Player", Player.class).getResultList();
@@ -28,6 +29,7 @@ public class PlayerDAO {
         return players;
     }
 
+     // Muestra la lista de jugadores registrados en la base de datos
     public static void showPlayers(EntityManager em) {
         List<Player> players = new ArrayList<Player>();
 
@@ -44,6 +46,7 @@ public class PlayerDAO {
         }
     }
 
+    // Permite añadir un nuevo jugador a la base de datos
     public static void addPlayer(EntityManager em, Scanner in) {
         EntityTransaction transaction = em.getTransaction();
 
@@ -76,6 +79,7 @@ public class PlayerDAO {
 
     }
 
+    // Selecciona a un oponente para atacar
     public static int selectOpponent(EntityManager em, int idPlayer, int idGame, Scanner in) {
 
         boolean selecting = true;
@@ -112,6 +116,7 @@ public class PlayerDAO {
         return selectedPlayer.id;
     }
 
+    // Devuelve la mano de un jugador
     public static List<Card> getHand(EntityManager em, int idPlayer) {
 
         try {
@@ -130,6 +135,7 @@ public class PlayerDAO {
         }
     }
 
+    // Muestra la mano de un jugador
     public static void showHand(EntityManager em, int idPlayer) {
 
         try {
@@ -156,6 +162,7 @@ public class PlayerDAO {
         }
     }
 
+    // Muestra la información de un jugador
     public static void show(EntityManager em, int idPlayer) {
         Player player = em.find(Player.class, idPlayer);
         em.refresh(player);
@@ -190,6 +197,7 @@ public class PlayerDAO {
                 "===============================================================================================");
     }
 
+    // Utiliza una carta de cerveza
     public static void useBeer(EntityManager em, int idPlayer, int idGame) {
 
         EntityTransaction transaction = em.getTransaction();
@@ -236,6 +244,7 @@ public class PlayerDAO {
         }
     }
 
+    // Utiliza una carta BANG
     public static void useBang(EntityManager em, int idAttacker, int idDefender, int idGame) {
         EntityTransaction transaction = em.getTransaction();
 
@@ -334,6 +343,7 @@ public class PlayerDAO {
 
     }
 
+    // Descarta una carta de un jugador
     public static void discardCard(EntityManager em, int idPlayer, int idCard, int idGame) {
         try {
 
@@ -388,7 +398,8 @@ public class PlayerDAO {
             throw new RuntimeException(e.getMessage());
         }
     }
-
+    
+    // Comprueba si un jugador ha sido eliminado
     public static void checkElimination(EntityManager em, int idPlayer, int idGame) {
         EntityTransaction transaction = em.getTransaction();
 
@@ -444,6 +455,7 @@ public class PlayerDAO {
 
     }
 
+    // Roba una carta de la pila
     public static void stealCard(EntityManager em, int idPlayer, int idGame) {
         EntityTransaction transaction = em.getTransaction();
 
@@ -495,7 +507,8 @@ public class PlayerDAO {
         }
 
     }
-
+    
+    // Pasa el turno al siguiente jugador y hace antes las comprovaciones del limite de cartas del jugador actual
     public static void passTurn(EntityManager em, int idGame, Scanner in) {
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -558,6 +571,7 @@ public class PlayerDAO {
 
     }
 
+    // Permite al jugador seleccionar una carta de su mano
     public static int selectCard(EntityManager em, int idPlayer, Class<? extends Card> type, Scanner in) {
         boolean choosing = true;
         Card card = null;
@@ -595,6 +609,7 @@ public class PlayerDAO {
         return card.id;
     }
 
+    // Permite al jugador equipar una carta
     public static void equipCard(EntityManager em, int idPlayer, int idCard) {
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -658,6 +673,7 @@ public class PlayerDAO {
 
     }
 
+    // Calcula la distancia entre dos jugadores
     public static int calculateDistance(EntityManager em, int idAttacker, int idDefender) {
         try {
             Player attacker = em.find(Player.class, idAttacker);
@@ -703,6 +719,7 @@ public class PlayerDAO {
         return 1;
     }
 
+    // Comprueba si un ataque es válido
     public static boolean checkDistanceAttack(EntityManager em, int idAttacker, int idDefender) {
 
         Player attacker = em.find(Player.class, idAttacker);
@@ -715,6 +732,7 @@ public class PlayerDAO {
         return distance <= attacker.weapon.distance;
     }
 
+    // Comprueba si un jugador tiene una carta de un tipo específico
     public static boolean hasCard(EntityManager em, int playerId, Class<? extends Card> type) {
         Player player = em.find(Player.class, playerId);
 
@@ -729,6 +747,7 @@ public class PlayerDAO {
         return false;
     }
 
+    // Comprueba si un jugador tiene una carta de uso específico
     public static boolean hasUseCard(EntityManager em, int playerId, TypeUse type) {
         Player player = em.find(Player.class, playerId);
 
