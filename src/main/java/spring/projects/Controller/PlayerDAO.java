@@ -755,8 +755,7 @@ public class PlayerDAO {
             return false;
 
         for (Card card : player.hand) {
-            if (card instanceof UseCard) {
-                UseCard useCard = (UseCard) card;
+            if (card instanceof UseCard useCard) {
                 if (useCard.type == type)
                     return true;
             }
