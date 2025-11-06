@@ -1,4 +1,4 @@
-package hibernate.projects.Entity;
+package spring.projects.Entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

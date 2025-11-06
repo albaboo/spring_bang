@@ -1,12 +1,12 @@
-package hibernate.projects.Controller;
+package spring.projects.Controller;
 
 import java.util.List;
 
-import hibernate.projects.Entity.Role;
-import hibernate.projects.Enum.TypeRole;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceException;
+import spring.projects.Entity.Role;
+import spring.projects.Enum.TypeRole;
 
 public class RoleDAO {
 

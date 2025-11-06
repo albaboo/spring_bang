@@ -1,4 +1,4 @@
-package hibernate.projects.Enum;
+package spring.projects.Enum;
 
 public enum TypeEquipment {
     HORSE("Equipamiento que modifica la distancia entre jugadores."), 

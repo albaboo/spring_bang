@@ -1,23 +1,23 @@
-package hibernate.projects.Controller;
+package spring.projects.Controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
-import hibernate.projects.Entity.Card;
-import hibernate.projects.Entity.EquipmentCard;
-import hibernate.projects.Entity.Game;
-import hibernate.projects.Entity.Player;
-import hibernate.projects.Entity.UseCard;
-import hibernate.projects.Entity.WeaponCard;
-import hibernate.projects.Enum.Suit;
-import hibernate.projects.Enum.TypeCard;
-import hibernate.projects.Enum.TypeEquipment;
-import hibernate.projects.Enum.TypeUse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceException;
+import spring.projects.Entity.Card;
+import spring.projects.Entity.EquipmentCard;
+import spring.projects.Entity.Game;
+import spring.projects.Entity.Player;
+import spring.projects.Entity.UseCard;
+import spring.projects.Entity.WeaponCard;
+import spring.projects.Enum.Suit;
+import spring.projects.Enum.TypeCard;
+import spring.projects.Enum.TypeEquipment;
+import spring.projects.Enum.TypeUse;
 
 public class PlayerDAO {
 

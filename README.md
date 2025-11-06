@@ -1,4 +1,4 @@
-# hibernate_bang
+# spring_bang
 
 Un proyecto en Java que simula el juego de mesa Bang! usando Hibernate y MySQL.  
 Desde la consola puedes añadir jugadores y jugar.
@@ -25,7 +25,7 @@ Desde la consola puedes añadir jugadores y jugar.
 
 ## Installation
 
-- Clona el repositorio:<br><br><pre>```git clone https://github.com/albaboo/hibernate_bang.git```</pre>
+- Clona el repositorio:<br><br><pre>```git clone https://github.com/albaboo/spring_bang.git```</pre>
 - Abre el proyecto en tu IDE.
 - Asegúrate de tener Maven instalado y que descargue las dependencias.
 - Configura la base de datos MySQL según el persistence.xml (nombre, usuario, contraseña).
@@ -45,11 +45,11 @@ Desde la consola puedes añadir jugadores y jugar.
 
 ## Project structure
 
-hibernate_bang/  
+spring_bang/  
 
 > src/  
 > > main/  
-> > > java/ hibernate/projects/  
+> > > java/ spring/projects/  
 > > > > Entity/ # Clases de entidad  
 > > > > Controller/ # Lógica de juego y DAO  
 > > > > Main.java # Clase principal

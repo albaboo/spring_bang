@@ -1,9 +1,8 @@
-package hibernate.projects.Entity;
+package spring.projects.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import hibernate.projects.Enum.TypeRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import spring.projects.Enum.TypeRole;
 
 @Entity
 @Table(name = "role")

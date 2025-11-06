@@ -1,4 +1,4 @@
-package hibernate.projects.Entity;
+package spring.projects.Entity;
 
 import java.util.ArrayList;
 import java.util.List;

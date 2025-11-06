@@ -1,4 +1,4 @@
-package hibernate.projects.Enum;
+package spring.projects.Enum;
 
 public enum TypeUse {
     BEER("Carta de curación; recupera 1 punto de vida en el jugador que la juega."),

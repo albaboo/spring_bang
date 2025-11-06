@@ -1,4 +1,4 @@
-package hibernate.projects.Enum;
+package spring.projects.Enum;
 
 public enum TypeRole {
     SHERIFF("Los malhechores y el renegado deben quedar eliminados. Identidad publica desde el principio."),

@@ -1,14 +1,14 @@
-package hibernate.projects;
+package spring.projects;
 
 import java.util.Scanner;
 
-import hibernate.projects.Controller.GameDAO;
-import hibernate.projects.Controller.PlayerDAO;
-import hibernate.projects.Controller.RoleDAO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceException;
+import spring.projects.Controller.GameDAO;
+import spring.projects.Controller.PlayerDAO;
+import spring.projects.Controller.RoleDAO;
 
 public class Main {
 

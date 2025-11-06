@@ -1,9 +1,8 @@
-package hibernate.projects.Entity;
+package spring.projects.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import hibernate.projects.Enum.Suit;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import spring.projects.Enum.Suit;
 
 @Entity
 @Table(name = "card")
