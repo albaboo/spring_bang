@@ -1,5 +1,7 @@
 package com.exemple.bang.entity;
 
+import com.exemple.bang.enums.TypeEquipment;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,7 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import spring.projects.Enum.TypeEquipment;
 
 @Entity
 @Table(name = "equipment_card")

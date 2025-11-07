@@ -1,11 +1,12 @@
 package com.exemple.bang.entity;
 
+import com.exemple.bang.enums.TypeUse;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import spring.projects.Enum.TypeUse;
 
 @Entity
 @Table(name = "use_card")

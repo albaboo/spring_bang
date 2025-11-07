@@ -7,14 +7,6 @@ import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceException;
-import spring.projects.Entity.Card;
-import spring.projects.Entity.EquipmentCard;
-import spring.projects.Entity.Game;
-import spring.projects.Entity.UseCard;
-import spring.projects.Enum.Suit;
-import spring.projects.Enum.TypeCard;
-import spring.projects.Enum.TypeEquipment;
-import spring.projects.Enum.TypeUse;
 
 public class CardDAO {
 

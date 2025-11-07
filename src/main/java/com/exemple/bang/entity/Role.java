@@ -3,6 +3,8 @@ package com.exemple.bang.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.exemple.bang.enums.TypeRole;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,7 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import spring.projects.Enum.TypeRole;
 
 @Entity
 @Table(name = "role")

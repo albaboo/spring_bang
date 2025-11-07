@@ -1,0 +1,14 @@
+package com.exemple.bang.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.exemple.bang.repository.UseCardRepository;
+
+@Service
+public class UseCardService {
+
+    @Autowired
+    private UseCardRepository repository;
+
+}
