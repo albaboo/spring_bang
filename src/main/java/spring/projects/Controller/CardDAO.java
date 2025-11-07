@@ -10,29 +10,6 @@ import jakarta.persistence.PersistenceException;
 
 public class CardDAO {
 
-    // Devuelve todas las cartas de una partida
-    public static List<Card> list(EntityManager em, Game game) {
-
-        List<Card> cards = em.createQuery("FROM Card c WHERE :game MEMBER OF c.gamesPlaying", Card.class)
-                .setParameter("game", game)
-                .getResultList();
-
-        return cards;
-    }
-
-    // Baraja las cartas de una partida
-    public static List<Card> shuffle(EntityManager em, Game game) {
-
-        List<Card> cards = em
-                .createQuery("SELECT c FROM Card c WHERE :game MEMBER OF c.gamesPlaying ORDER BY function('RAND')",
-                        Card.class)
-                .setParameter("game", game)
-                .getResultList();
-
-        Collections.shuffle(cards);
-        return cards;
-    }
-
     // Comprueba si existen cartas en la partida. Si no, crea un mazo inicial.
     public static void checkCards(EntityManager em, Game game) {
         EntityTransaction transaction = em.getTransaction();
