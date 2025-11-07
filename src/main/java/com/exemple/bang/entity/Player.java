@@ -23,7 +23,7 @@ public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int id;
+    public Long id;
 
     @Column(name = "name")
     public String name;

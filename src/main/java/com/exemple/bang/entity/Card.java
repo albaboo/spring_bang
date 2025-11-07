@@ -25,7 +25,7 @@ public abstract class Card {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int id;
+    public Long id;
 
     @Column(name = "name", nullable = false)
     public String name;

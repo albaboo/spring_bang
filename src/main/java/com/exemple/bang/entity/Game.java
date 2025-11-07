@@ -22,7 +22,7 @@ public class Game {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int id;
+    public Long id;
 
     @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 'Start'")
     public String status = "Start";
