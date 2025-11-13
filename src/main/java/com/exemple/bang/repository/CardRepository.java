@@ -31,7 +31,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 
         // Baraja las cartas de una partida
         @Query("SELECT c FROM Card c WHERE :game MEMBER OF c.gamesPlaying ORDER BY function('RAND')")
-        List<Card> findByGamesPlayingShuffled(
+        List<Card> findByGamesPlayingShuffle(
                         @Param("game") Game game);
 
         // Actualizar carta
